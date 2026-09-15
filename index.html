@@ -17,19 +17,26 @@
   <meta name="twitter:description" content="两两对比，排出你心中的干员喜爱度榜单。" />
   <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/yuanyan3060/ArknightsGameResource@main/portrait/char_002_amiya_2.png" />
   <link rel="icon" href="https://cdn.jsdelivr.net/gh/yuanyan3060/ArknightsGameResource@main/avatar/char_002_amiya.png" />
-  <link rel="stylesheet" href="style.css?v=20260915" />
+  <link rel="stylesheet" href="style.css?v=20260915b" />
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <img class="brand-logo"
-           src="https://cdn.jsdelivr.net/gh/yuanyan3060/ArknightsGameResource@main/avatar/char_002_amiya.png"
-           alt="Amiya" />
-      <h1>Arknights Sorter</h1>
-    </div>
-  </header>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <img class="brand-logo"
+             src="https://cdn.jsdelivr.net/gh/yuanyan3060/ArknightsGameResource@main/avatar/char_002_amiya.png"
+             alt="Amiya" />
+        <h1>Arknights Sorter</h1>
+      </div>
+      <nav class="sidenav">
+        <div class="sidenav-section">明日方舟</div>
+        <button class="sidenav-item active" id="nav-sorter"><span class="ico">🗂️</span> 干员排序器</button>
+        <button class="sidenav-item" id="quiz-entry"><span class="ico">🎮</span> 干员竞猜</button>
+      </nav>
+    </aside>
 
-  <main id="app">
+    <div class="content">
+      <main id="app">
     <!-- ======================= 选择页 ======================= -->
     <section id="view-select" class="view">
       <div class="toolbar">
@@ -47,7 +54,6 @@
           <button class="btn ghost" data-preset="r56">五星+六星</button>
           <button class="btn ghost" data-preset="visible">选中当前筛选</button>
           <button class="btn ghost lucky" data-preset="lucky">🎲 手气抽卡</button>
-          <button class="btn ghost quiz-entry" id="quiz-entry">🎮 干员竞猜</button>
         </div>
       </div>
 
@@ -108,15 +114,17 @@
 
     <!-- ======================= 竞猜小游戏 ======================= -->
     <section id="view-quiz" class="view hidden"></section>
-  </main>
+      </main>
 
-  <footer class="sitefoot">
-    数据来源：Arknights Game Data（zh_CN）· 头像来自 ArknightsGameResource · 立绘来自 PRTS Wiki · 本页为 KATATSU 制作
-  </footer>
+      <footer class="sitefoot">
+        数据来源：Arknights Game Data（zh_CN）· 头像来自 ArknightsGameResource · 立绘来自 PRTS Wiki · 本页为 KATATSU 制作
+      </footer>
+    </div>
+  </div>
 
-  <script src="data/operators.js?v=20260915"></script>
-  <script src="sorter-core.js?v=20260915"></script>
-  <script src="app.js?v=20260915"></script>
-  <script src="quiz.js?v=20260915"></script>
+  <script src="data/operators.js?v=20260915b"></script>
+  <script src="sorter-core.js?v=20260915b"></script>
+  <script src="app.js?v=20260915b"></script>
+  <script src="quiz.js?v=20260915b"></script>
 </body>
 </html>

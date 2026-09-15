@@ -121,15 +121,25 @@
     $('#quiz-exit-over', viewEl).addEventListener('click', exitToSorter);
   }
 
+  // 侧边栏导航高亮
+  function setNav(which) {
+    const s = document.getElementById('nav-sorter');
+    const q = document.getElementById('quiz-entry');
+    if (s) s.classList.toggle('active', which === 'sorter');
+    if (q) q.classList.toggle('active', which === 'quiz');
+  }
+
   function exitToSorter() {
     stopTimers();
     showOnly('view-select');
+    setNav('sorter');
   }
 
   function enterQuiz() {
     if (!viewEl) buildView();
     showSetup();
     showOnly('view-quiz');
+    setNav('quiz');
   }
 
   function showSetup() {
@@ -263,6 +273,8 @@
   function bind() {
     const entry = document.getElementById('quiz-entry');
     if (entry) entry.addEventListener('click', enterQuiz);
+    const navSorter = document.getElementById('nav-sorter');
+    if (navSorter) navSorter.addEventListener('click', exitToSorter);
   }
 
   bind(); // 脚本位于 body 末尾，DOM 已就绪
