@@ -399,6 +399,8 @@ html, body {
 }
 
 .sitefoot { text-align: center; color: var(--muted); font-size: 12px; padding: 24px 16px 40px; }
+.sitefoot a { color: var(--accent-2); text-decoration: none; }
+.sitefoot a:hover { text-decoration: underline; }
 
 @media (max-width: 560px) {
   .op-card.choice img { width: 110px; height: 110px; }
