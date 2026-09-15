@@ -124,8 +124,8 @@
     start.disabled = n < 2;
     $('#footer-hint').textContent =
       n < 2 ? '至少选择 2 名干员开始排序'
-            : '将对 ' + n + ' 名干员进行排序（约需 ' +
-              (n < 2 ? 0 : Math.ceil(n * Math.log2(n))) + ' 次对比）';
+            : '将对 ' + n + ' 名干员进行排序（最多约 ' +
+              Sorter.worstCaseComparisons(n) + ' 次对比，平局会更少）';
   }
 
   function applyPreset(preset) {

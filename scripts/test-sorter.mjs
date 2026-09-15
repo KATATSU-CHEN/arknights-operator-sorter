@@ -134,6 +134,29 @@ for (const [n, tie] of [[13, false], [40, true], [64, false], [7, true]]) {
   ok(s.percent() === p0, 'percent restored after undo');
 }
 
+// 6e) worstCaseComparisons: known values + it is a true upper bound (no ties)
+{
+  ok(Sorter.worstCaseComparisons(0) === 0 && Sorter.worstCaseComparisons(1) === 0, 'wcc 0/1 = 0');
+  ok(Sorter.worstCaseComparisons(2) === 1, 'wcc 2 = 1');
+  ok(Sorter.worstCaseComparisons(4) === 5, 'wcc 4 = 5');
+  ok(Sorter.worstCaseComparisons(15) === 45, 'wcc 15 = 45 (got ' + Sorter.worstCaseComparisons(15) + ')');
+  // power-of-two closed form: n*log2(n) - n + 1
+  for (const k of [1, 2, 3, 4, 5, 6]) {
+    const n = 1 << k;
+    ok(Sorter.worstCaseComparisons(n) === n * k - n + 1, `wcc pow2 n=${n}`);
+  }
+  // actual comparisons (no ties) never exceed the worst-case bound
+  let boundOk = true;
+  for (let n = 2; n <= 80; n++) {
+    const vals = Array.from({ length: n }, () => Math.random());
+    const items = vals.map((v, i) => ({ id: 'b' + i, v }));
+    const s = new Sorter(items);
+    while (!s.finished) { const { a, b } = s.current(); s.choose(a.v > b.v ? 'left' : 'right'); }
+    if (s.comparisons > Sorter.worstCaseComparisons(n)) { boundOk = false; console.error('   n=' + n + ' cmp=' + s.comparisons + ' bound=' + Sorter.worstCaseComparisons(n)); }
+  }
+  ok(boundOk, 'actual comparisons <= worstCaseComparisons for n=2..80');
+}
+
 // 6) Edge cases: 0 and 1 items
 {
   const s0 = new Sorter([]);

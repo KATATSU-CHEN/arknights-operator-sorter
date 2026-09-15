@@ -21,12 +21,27 @@
       this.history = [];
       this.finished = false;
       this.result = null;
-      // 对比次数的粗略估计（仅用于选择页提示）
-      this.estimate = items.length < 2 ? 1 : Math.ceil(items.length * Math.log2(items.length));
+      // 最多对比次数（选择页提示用；平局会让实际次数更少）
+      this.estimate = Sorter.worstCaseComparisons(items.length);
       // 进度用「元素归位数」度量：确定性、单调、与平局无关，结束时恰为 100%
       this.placed = 0;
       this.totalPlace = Sorter._totalPlacements(items.length);
       this._prepare();
+    }
+
+    // 归并排序的最坏情况对比次数（每个 merge 最多 a+b-1 次；只与 n 有关）
+    static worstCaseComparisons(n) {
+      if (n < 2) return 0;
+      let sizes = new Array(n).fill(1);
+      let total = 0;
+      while (sizes.length > 1) {
+        const next = [];
+        let i = 0;
+        while (i + 1 < sizes.length) { const a = sizes[i], b = sizes[i + 1]; total += a + b - 1; next.push(a + b); i += 2; }
+        if (i < sizes.length) next.push(sizes[i]);
+        sizes = next;
+      }
+      return total;
     }
 
     // 归并排序中所有 merge 会把元素归位的总次数（只与 n 有关）
