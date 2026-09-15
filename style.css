@@ -35,7 +35,18 @@ html, body {
   background: linear-gradient(180deg, #12161c, var(--bg));
   padding: 18px 14px;
   position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  display: flex; flex-direction: column;
 }
+
+/* 访问量计数（侧边栏底部角落） */
+.visits {
+  margin-top: auto; padding: 12px 8px 4px;
+  border-top: 1px solid var(--line);
+  color: var(--muted); font-size: 12px;
+  display: flex; align-items: center; gap: 6px;
+}
+.visits-eye { opacity: .85; }
+.visits-num { color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
 .content { flex: 1; min-width: 0; }
 
 .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
