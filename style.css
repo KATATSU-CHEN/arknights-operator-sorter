@@ -224,6 +224,8 @@ html, body {
   overflow: hidden;
   background: #0a0c0f;
 }
+/* 立绘为 180×360（1:2 竖图），卡框同比，cover 即完整显示不裁切 */
+.rank-item.portrait-frame .frame { aspect-ratio: 180 / 360; }
 .rank-item .frame img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
 .rank-item .place-badge {
   position: absolute; right: 6px; bottom: 6px;
@@ -242,20 +244,18 @@ html, body {
 .rank-item[data-r="2"] .frame { border-color: var(--r2); }
 .rank-item[data-r="1"] .frame { border-color: var(--r1); }
 
-/* 领奖台（前 3 名） */
-.podium-item.gold { width: min(340px, 66%); }
-.podium-item.silver, .podium-item.bronze { width: min(240px, 42%); }
-.podium-item .frame { height: 320px; }
-.podium-item.silver .frame, .podium-item.bronze .frame { height: 270px; }
+/* 领奖台（前 3 名）：立绘竖版，金牌最大，底部对齐 */
+.podium-item.gold { width: 240px; }
+.podium-item.silver, .podium-item.bronze { width: 196px; }
 .podium-item .place-badge { font-size: 20px; padding: 3px 12px; }
-.podium-item.gold .frame { background: linear-gradient(to top left, #945101, 28%, #fffbac); box-shadow: 0 0 22px rgba(255, 190, 60, .35); }
+.podium-item.gold .frame { background: linear-gradient(to top left, #945101, 28%, #fffbac); box-shadow: 0 0 24px rgba(255, 190, 60, .4); }
 .podium-item.silver .frame { background: linear-gradient(to top left, #4a4560, 28%, #c0ddec); }
 .podium-item.bronze .frame { background: linear-gradient(to top left, #6e4130, 28%, #ffddb8); }
 .podium-item .rk-name { font-size: 19px; }
 
-/* 大图（4~18 名，三列） */
-.big-item { width: calc(33.333% - 14px); }
-.big-item .frame { height: 210px; background: linear-gradient(to top left, #2b2530, 30%, #4b4150); }
+/* 大图（4~18 名）：立绘竖版卡片网格 */
+.big-item { width: 164px; }
+.big-item .frame { background: linear-gradient(to top left, #2b2530, 30%, #4b4150); }
 
 /* 小图（其余，方形头像） */
 .small-item { width: 112px; }
@@ -263,11 +263,12 @@ html, body {
 .small-item .frame { width: 112px; height: 112px; }
 .small-item .caption { margin-top: 5px; font-size: 13px; word-break: break-word; }
 
-@media (max-width: 1000px) { .big-item { width: calc(50% - 10px); } }
-@media (max-width: 640px) {
-  .big-item { width: 100%; }
-  .big-item .frame { height: 260px; }
-  .podium-item.gold, .podium-item.silver, .podium-item.bronze { width: 100%; }
+@media (max-width: 560px) {
+  .podium-item.gold { width: 44%; }
+  .podium-item.silver, .podium-item.bronze { width: 38%; }
+  .big-item { width: calc(33.333% - 10px); }
+  .small-item { width: calc(33.333% - 10px); }
+  .small-item .frame { width: 100%; height: auto; aspect-ratio: 1 / 1; }
 }
 
 .sitefoot { text-align: center; color: var(--muted); font-size: 12px; padding: 24px 16px 40px; }

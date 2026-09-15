@@ -226,7 +226,7 @@
   // 领奖台 / 大图条目：立绘 + 名次角标 + 名字
   function bigItem(op, rank, cls) {
     const el = document.createElement('div');
-    el.className = 'rank-item ' + cls;
+    el.className = 'rank-item portrait-frame ' + cls;
     el.dataset.r = op.rarity;
     el.innerHTML =
       '<div class="frame"><img alt="' + op.name + '">' +
