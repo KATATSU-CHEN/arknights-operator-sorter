@@ -70,6 +70,10 @@ html, body {
   color: var(--accent);
 }
 .sidenav-item .ico { font-size: 16px; }
+.sidenav-item .nav-ico {
+  width: 26px; height: 26px; border-radius: 6px;
+  object-fit: cover; border: none; flex: none; background: #0a0c0f;
+}
 
 #app { max-width: 1180px; margin: 0 auto; padding: 16px; }
 
