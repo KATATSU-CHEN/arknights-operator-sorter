@@ -81,16 +81,12 @@ while (doc.querySelector('#view-result').classList.contains('hidden')) {
 }
 ok(didUndo, 'performed an undo mid-sort');
 
-// Result view rendered with N rows
-const rows = doc.querySelectorAll('#result-list .result-row');
-ok(rows.length === N, 'result rows = ' + rows.length + ' (want ' + N + ')');
-ok(doc.querySelector('.result-row .rank').textContent === '1', 'first rank is 1');
-
-// Result stats rendered: summary + 3 bar blocks
-ok(doc.querySelector('#result-stats .stat-summary'), 'stats summary rendered');
-const statBlocks = doc.querySelectorAll('#result-stats .stat-block');
-ok(statBlocks.length === 3, 'stats has 3 blocks (rarity/class/nation): ' + statBlocks.length);
-ok(doc.querySelectorAll('#result-stats .stat-bar').length > 0, 'stats bars rendered');
+// Result view rendered as tiered ranking
+const items = doc.querySelectorAll('#result-list .rank-item');
+ok(items.length === N, 'ranked items = ' + items.length + ' (want ' + N + ')');
+ok(doc.querySelector('.tier-podium .podium-item.gold'), 'podium gold (rank 1) present');
+ok(doc.querySelectorAll('.tier-podium .podium-item').length === Math.min(3, N), 'podium has top-3');
+ok(doc.querySelector('.rank-item .place-badge').textContent.trim() === '#1', 'first badge is #1');
 
 // Share link round-trip: click copy-link, capture clipboard text, reload with hash
 let copied = '';
@@ -105,8 +101,8 @@ dom2.window.alert = () => {}; dom2.window.scrollTo = () => {};
 dom2.window.eval(read('data/operators.js'));
 dom2.window.eval(read('sorter-core.js'));
 dom2.window.eval(read('app.js'));
-const sharedRows = dom2.window.document.querySelectorAll('#result-list .result-row');
-ok(sharedRows.length === N, 'shared link renders ' + sharedRows.length + ' rows');
+const sharedRows = dom2.window.document.querySelectorAll('#result-list .rank-item');
+ok(sharedRows.length === N, 'shared link renders ' + sharedRows.length + ' items');
 ok(!dom2.window.document.querySelector('#view-result').classList.contains('hidden'), 'shared link opens result view');
 
 console.log(fail ? `\nDOM smoke test: ${fail} failures` : '\nDOM smoke test: all checks passed');
