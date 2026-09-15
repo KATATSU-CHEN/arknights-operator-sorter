@@ -223,17 +223,19 @@
 
   function medalClass(k) { return ['gold', 'silver', 'bronze'][k] || ''; }
 
-  // 领奖台 / 大图条目：立绘 + 名次角标 + 名字
+  // 领奖台 / 大图条目：方形头像 + 名次角标 + 名字
   function bigItem(op, rank, cls) {
     const el = document.createElement('div');
-    el.className = 'rank-item portrait-frame ' + cls;
+    el.className = 'rank-item square-frame ' + cls;
     el.dataset.r = op.rarity;
     el.innerHTML =
       '<div class="frame"><img alt="' + op.name + '">' +
       '<span class="place-badge">#' + rank + '</span></div>' +
       '<div class="rk-name">' + op.name + '</div>' +
       '<div class="rk-sub">' + opSub(op) + '</div>';
-    portraitImg(el.querySelector('img'), op);
+    const img = el.querySelector('img');
+    img.addEventListener('error', function () { onImgError(this); });
+    img.src = avatarUrl(op);
     return el;
   }
 

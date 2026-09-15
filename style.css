@@ -224,9 +224,9 @@ html, body {
   overflow: hidden;
   background: #0a0c0f;
 }
-/* 立绘为 180×360（1:2 竖图），卡框同比，cover 即完整显示不裁切 */
-.rank-item.portrait-frame .frame { aspect-ratio: 180 / 360; }
-.rank-item .frame img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+/* 头像为方图，卡框 1:1，cover 完整显示 */
+.rank-item.square-frame .frame { aspect-ratio: 1 / 1; }
+.rank-item .frame img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
 .rank-item .place-badge {
   position: absolute; right: 6px; bottom: 6px;
   background: rgba(10, 12, 15, .82);
@@ -244,30 +244,27 @@ html, body {
 .rank-item[data-r="2"] .frame { border-color: var(--r2); }
 .rank-item[data-r="1"] .frame { border-color: var(--r1); }
 
-/* 领奖台（前 3 名）：立绘竖版，金牌最大，底部对齐 */
-.podium-item.gold { width: 240px; }
-.podium-item.silver, .podium-item.bronze { width: 196px; }
-.podium-item .place-badge { font-size: 20px; padding: 3px 12px; }
-.podium-item.gold .frame { background: linear-gradient(to top left, #945101, 28%, #fffbac); box-shadow: 0 0 24px rgba(255, 190, 60, .4); }
-.podium-item.silver .frame { background: linear-gradient(to top left, #4a4560, 28%, #c0ddec); }
-.podium-item.bronze .frame { background: linear-gradient(to top left, #6e4130, 28%, #ffddb8); }
-.podium-item .rk-name { font-size: 19px; }
+/* 领奖台（前 3 名）：方形头像，金牌最大，底部对齐 */
+.podium-item.gold { width: 180px; }
+.podium-item.silver, .podium-item.bronze { width: 148px; }
+.podium-item .place-badge { font-size: 18px; padding: 3px 11px; }
+.podium-item.gold .frame { box-shadow: 0 0 24px rgba(255, 190, 60, .45); }
+.podium-item .rk-name { font-size: 18px; }
 
-/* 大图（4~18 名）：立绘竖版卡片网格 */
-.big-item { width: 164px; }
-.big-item .frame { background: linear-gradient(to top left, #2b2530, 30%, #4b4150); }
+/* 大图（4~18 名）：方形头像卡片网格 */
+.big-item { width: 128px; }
 
 /* 小图（其余，方形头像） */
-.small-item { width: 112px; }
+.small-item { width: 100px; }
 .small-item .rk-name-sm { font-size: 14px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
-.small-item .frame { width: 112px; height: 112px; }
+.small-item .frame { width: 100px; height: 100px; }
 .small-item .caption { margin-top: 5px; font-size: 13px; word-break: break-word; }
 
 @media (max-width: 560px) {
-  .podium-item.gold { width: 44%; }
-  .podium-item.silver, .podium-item.bronze { width: 38%; }
-  .big-item { width: calc(33.333% - 10px); }
-  .small-item { width: calc(33.333% - 10px); }
+  .podium-item.gold { width: 40%; }
+  .podium-item.silver, .podium-item.bronze { width: 34%; }
+  .big-item { width: calc(25% - 12px); }
+  .small-item { width: calc(25% - 11px); }
   .small-item .frame { width: 100%; height: auto; aspect-ratio: 1 / 1; }
 }
 
