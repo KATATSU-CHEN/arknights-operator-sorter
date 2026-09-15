@@ -1,0 +1,16 @@
+{
+  "name": "arknights-operator-sorter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "明日方舟干员排序器 — 通过两两对比排出你心中的干员喜爱度榜单",
+  "type": "module",
+  "scripts": {
+    "build-data": "node scripts/build-operators.mjs",
+    "serve": "node scripts/serve.mjs",
+    "test": "node scripts/test-sorter.mjs",
+    "test:dom": "node scripts/test-dom.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^24.0.0"
+  }
+}

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>明日方舟 干员排序器 · Arknights Operator Sorter</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>明日方舟 · 干员排序器</h1>
+    <p class="subtitle">通过两两对比，排出你心中的干员喜爱度榜单</p>
+  </header>
+
+  <main id="app">
+    <!-- ======================= 选择页 ======================= -->
+    <section id="view-select" class="view">
+      <div class="toolbar">
+        <div class="toolbar-row">
+          <input id="search" class="search" type="text" placeholder="搜索干员（中文 / 英文）…" />
+          <span id="select-count" class="count">已选 0</span>
+        </div>
+        <div class="toolbar-row filters" id="rarity-filters"></div>
+        <div class="toolbar-row filters" id="class-filters"></div>
+        <div class="toolbar-row presets">
+          <button class="btn ghost" data-preset="all">全选</button>
+          <button class="btn ghost" data-preset="none">清空</button>
+          <button class="btn ghost" data-preset="r6">仅六星</button>
+          <button class="btn ghost" data-preset="r56">五星+六星</button>
+          <button class="btn ghost" data-preset="visible">选中当前筛选</button>
+        </div>
+      </div>
+
+      <div id="grid" class="grid"></div>
+
+      <div class="footer-bar">
+        <span id="footer-hint" class="hint">至少选择 2 名干员开始排序</span>
+        <button id="start-btn" class="btn primary" disabled>开始排序 →</button>
+      </div>
+    </section>
+
+    <!-- ======================= 对比页 ======================= -->
+    <section id="view-sort" class="view hidden">
+      <div class="progress-wrap">
+        <div class="progress-info">
+          <span id="progress-text">第 1 次对比</span>
+          <span id="progress-pct">0%</span>
+        </div>
+        <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+      </div>
+
+      <p class="vs-hint">你更喜欢哪一位？（键盘 ← → 选择，↓ 或空格 平局，退格 撤销）</p>
+
+      <div class="vs">
+        <button class="op-card choice" id="choice-left"></button>
+        <div class="vs-mid">
+          <span class="vs-badge">VS</span>
+          <button class="btn tie" id="tie-btn">势均力敌 / 都喜欢</button>
+        </div>
+        <button class="op-card choice" id="choice-right"></button>
+      </div>
+
+      <div class="sort-controls">
+        <button class="btn ghost" id="undo-btn" disabled>↶ 撤销</button>
+        <button class="btn ghost danger" id="quit-btn">退出</button>
+      </div>
+    </section>
+
+    <!-- ======================= 结果页 ======================= -->
+    <section id="view-result" class="view hidden">
+      <div class="result-head">
+        <h2 id="result-title">排序结果</h2>
+        <p id="result-meta" class="hint"></p>
+        <div class="result-actions">
+          <button class="btn ghost" id="restart-btn">重新排序</button>
+          <button class="btn ghost" id="back-btn">返回选择</button>
+          <button class="btn ghost" id="copy-text-btn">复制榜单文本</button>
+          <button class="btn ghost" id="copy-link-btn">复制分享链接</button>
+          <button class="btn ghost" id="print-btn">保存 / 打印</button>
+        </div>
+      </div>
+      <ol id="result-list" class="result-list"></ol>
+    </section>
+  </main>
+
+  <footer class="sitefoot">
+    数据来源：Arknights Game Data（zh_CN）· 头像来自 ArknightsGameResource · 本页为粉丝制作，与鹰角网络无关
+  </footer>
+
+  <script src="data/operators.js"></script>
+  <script src="sorter-core.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
