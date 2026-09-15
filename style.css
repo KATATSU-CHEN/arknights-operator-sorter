@@ -74,6 +74,7 @@ html, body {
   color: var(--text); font-size: 15px; font-weight: 600; cursor: pointer;
   transition: .15s;
 }
+a.sidenav-item { text-decoration: none; }
 .sidenav-item:hover { background: var(--bg-3); }
 .sidenav-item.active {
   background: rgba(255, 176, 32, .14);
