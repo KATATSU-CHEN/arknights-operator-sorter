@@ -182,6 +182,14 @@
     else if (preset === 'r6') { state.selected.clear(); OPS.forEach((o) => { if (o.rarity === 6) state.selected.add(o.id); }); }
     else if (preset === 'r56') { state.selected.clear(); OPS.forEach((o) => { if (o.rarity >= 5) state.selected.add(o.id); }); }
     else if (preset === 'visible') { filteredOps().forEach((o) => state.selected.add(o.id)); }
+    else if (preset === 'lucky') {
+      // 手气抽卡：从当前筛选池里随机抽一批
+      const pool = filteredOps().slice();
+      for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+      const n = Math.min(12, pool.length);
+      state.selected.clear();
+      for (let i = 0; i < n; i++) state.selected.add(pool[i].id);
+    }
     renderGrid();
     updateSelectCount();
   }
@@ -256,6 +264,76 @@
     return el;
   }
 
+  // 趣味称号：根据榜单自动生成 1~3 个吹牛标签
+  function computeTitles(ranked) {
+    const badges = [];
+    if (!ranked.length) return badges;
+    const top = ranked.slice(0, 5).map((r) => r.op);
+    const first = ranked[0].op;
+
+    if (first.id === 'char_002_amiya') badges.push('🐰 阿米娅本命');
+
+    if (first.rarity <= 3) badges.push('💎 平民之光');
+    else if (first.rarity === 4) badges.push('🔧 四星真爱');
+
+    const top3 = ranked.slice(0, 3).map((r) => r.op);
+    if (top3.length === 3 && top3.every((o) => o.rarity === 6)) badges.push('🌟 六星党');
+
+    const clsCount = {};
+    top.forEach((o) => { clsCount[o.cls] = (clsCount[o.cls] || 0) + 1; });
+    const clsTop = Object.entries(clsCount).sort((a, b) => b[1] - a[1])[0];
+    if (clsTop && clsTop[1] >= 3) badges.push('🎯 ' + (CLASS_LABEL[clsTop[0]] || clsTop[0]) + '控');
+
+    const natCount = {};
+    top.forEach((o) => { if (o.nation) natCount[o.nation] = (natCount[o.nation] || 0) + 1; });
+    const natTop = Object.entries(natCount).sort((a, b) => b[1] - a[1])[0];
+    if (natTop && natTop[1] >= 3) badges.push('🚩 ' + nationName(natTop[0]) + '铁粉');
+
+    if (top.length >= 5 && new Set(top.map((o) => o.cls)).size === 5) badges.push('🌈 雨露均沾');
+
+    if (!badges.length) badges.push('✨ 独具慧眼');
+    return badges.slice(0, 3);
+  }
+
+  // 冠军高光：撒一波彩带（尊重「减少动态效果」偏好）
+  function launchConfetti() {
+    if (typeof requestAnimationFrame === 'undefined') return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cvs = document.createElement('canvas');
+    if (!cvs.getContext) return;
+    const ctx = cvs.getContext('2d');
+    if (!ctx) return;
+    cvs.className = 'confetti-canvas';
+    document.body.appendChild(cvs);
+    const DPR = window.devicePixelRatio || 1;
+    cvs.width = innerWidth * DPR; cvs.height = innerHeight * DPR;
+    const colors = ['#ffce3b', '#ff6b6b', '#4dd2ff', '#7CFFB2', '#c084fc', '#ffffff'];
+    const parts = [];
+    for (let i = 0; i < 150; i++) {
+      parts.push({
+        x: Math.random() * cvs.width,
+        y: -20 * DPR - Math.random() * cvs.height * 0.4,
+        w: (6 + Math.random() * 6) * DPR, h: (8 + Math.random() * 9) * DPR,
+        vx: (-1 + Math.random() * 2) * DPR, vy: (2 + Math.random() * 3.5) * DPR,
+        rot: Math.random() * Math.PI, vr: -0.2 + Math.random() * 0.4,
+        color: colors[(Math.random() * colors.length) | 0],
+      });
+    }
+    const start = performance.now(), DURATION = 2600;
+    function frame(t) {
+      const elapsed = t - start;
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+      ctx.globalAlpha = elapsed > DURATION - 700 ? Math.max(0, (DURATION - elapsed) / 700) : 1;
+      for (const p of parts) {
+        p.x += p.vx; p.y += p.vy; p.vy += 0.02 * DPR; p.rot += p.vr;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+        ctx.fillStyle = p.color; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
+      }
+      if (elapsed < DURATION) requestAnimationFrame(frame); else cvs.remove();
+    }
+    requestAnimationFrame(frame);
+  }
+
   function renderResult(sharedRanked) {
     const ranked = sharedRanked || state.sorter.ranked();
     const listEl = $('#result-list');
@@ -283,8 +361,20 @@
       '共 ' + n + ' 名干员' +
       (sharedRanked ? '（分享榜单）' : '，进行了 ' + state.sorter.comparisons + ' 次对比') +
       ' · ' + new Date().toLocaleString('zh-CN');
+
+    // 趣味称号
+    const badgesEl = $('#result-badges');
+    badgesEl.innerHTML = '';
+    computeTitles(ranked).forEach((t) => {
+      const s = document.createElement('span');
+      s.className = 'badge-chip';
+      s.textContent = t;
+      badgesEl.appendChild(s);
+    });
+
     state._lastRanked = ranked;
     showView('result');
+    launchConfetti();
   }
 
   /* ---------------- 分享链接编解码 ---------------- */

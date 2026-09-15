@@ -29,6 +29,7 @@ const run = (code) => window.eval(code);
 run(read('data/operators.js'));
 run(read('sorter-core.js'));
 run(read('app.js'));
+run(read('quiz.js'));
 
 const doc = window.document;
 ok(window.ARK_DATA.operators.length > 0, 'data loaded');
@@ -104,6 +105,32 @@ dom2.window.eval(read('app.js'));
 const sharedRows = dom2.window.document.querySelectorAll('#result-list .rank-item');
 ok(sharedRows.length === N, 'shared link renders ' + sharedRows.length + ' items');
 ok(!dom2.window.document.querySelector('#view-result').classList.contains('hidden'), 'shared link opens result view');
+
+// ---------------- 竞猜小游戏 ----------------
+const Q = window.__quiz;
+ok(Q && typeof Q.enterQuiz === 'function', 'quiz module exposed');
+// Enter quiz from the select page entry button
+doc.querySelector('#quiz-entry').dispatchEvent(new window.Event('click', { bubbles: true }));
+ok(!doc.querySelector('#view-quiz').classList.contains('hidden'), 'quiz view shown after entry');
+ok(doc.querySelector('#quiz-setup') && !doc.querySelector('#quiz-setup').classList.contains('hidden'), 'quiz setup visible');
+
+// Configure a short round and start
+Q.cfg.pool = 'r6'; Q.cfg.count = 5;
+doc.querySelector('#quiz-start').dispatchEvent(new window.Event('click', { bubbles: true }));
+ok(!doc.querySelector('#quiz-play').classList.contains('hidden'), 'quiz play view shown');
+const opts = doc.querySelectorAll('#quiz-options .quiz-opt');
+ok(opts.length === 4, 'quiz renders 4 options: ' + opts.length);
+const target = Q.game.queue[Q.game.idx];
+const correctOpts = [...opts].filter((b) => b.textContent === target.name);
+ok(correctOpts.length === 1, 'exactly one correct option matches target');
+const distinct = new Set([...opts].map((b) => b.textContent));
+ok(distinct.size === 4, 'all 4 option names distinct');
+
+// Answer correctly -> score increments, streak increments
+const before = Q.game.score;
+correctOpts[0].dispatchEvent(new window.Event('click', { bubbles: true }));
+ok(Q.game.score === before + 1, 'correct answer increments score');
+ok(doc.querySelector('#quiz-options .quiz-opt.right'), 'correct option highlighted');
 
 console.log(fail ? `\nDOM smoke test: ${fail} failures` : '\nDOM smoke test: all checks passed');
 process.exit(fail ? 1 : 0);

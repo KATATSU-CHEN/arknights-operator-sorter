@@ -46,6 +46,8 @@
           <button class="btn ghost" data-preset="r6">仅六星</button>
           <button class="btn ghost" data-preset="r56">五星+六星</button>
           <button class="btn ghost" data-preset="visible">选中当前筛选</button>
+          <button class="btn ghost lucky" data-preset="lucky">🎲 手气抽卡</button>
+          <button class="btn ghost quiz-entry" id="quiz-entry">🎮 干员竞猜</button>
         </div>
       </div>
 
@@ -92,6 +94,7 @@
       <div class="result-head">
         <h2 id="result-title">排序结果</h2>
         <p id="result-meta" class="hint"></p>
+        <div id="result-badges" class="result-badges"></div>
         <div class="result-actions">
           <button class="btn ghost" id="restart-btn">重新排序</button>
           <button class="btn ghost" id="back-btn">返回选择</button>
@@ -102,6 +105,9 @@
       </div>
       <div id="result-list" class="ranking"></div>
     </section>
+
+    <!-- ======================= 竞猜小游戏 ======================= -->
+    <section id="view-quiz" class="view hidden"></section>
   </main>
 
   <footer class="sitefoot">
@@ -111,5 +117,6 @@
   <script src="data/operators.js"></script>
   <script src="sorter-core.js"></script>
   <script src="app.js"></script>
+  <script src="quiz.js"></script>
 </body>
 </html>
