@@ -253,8 +253,8 @@ html, body {
 .podium-item.gold .frame { width: min(560px, 100%); height: 300px; }
 .podium-item.silver, .podium-item.bronze { width: min(300px, calc(50% - 8px)); }
 .podium-item.silver .frame, .podium-item.bronze .frame { height: 250px; }
-.podium-item.gold .art { background-size: auto 340px; }
-.podium-item.silver .art, .podium-item.bronze .art { background-size: auto 290px; }
+.podium-item.gold .art { background-size: auto 520px; }
+.podium-item.silver .art, .podium-item.bronze .art { background-size: auto 440px; }
 .podium-item.gold .frame { background: linear-gradient(to top left, #945101, 28%, #fffbac); box-shadow: 0 0 24px rgba(255, 190, 60, .4); }
 .podium-item.silver .frame { background: linear-gradient(to top left, #4a4560, 28%, #c0ddec); }
 .podium-item.bronze .frame { background: linear-gradient(to top left, #6e4130, 28%, #ffddb8); }
@@ -264,7 +264,7 @@ html, body {
 /* 大图（4~18 名）：横版半身卡片网格 */
 .big-item { width: calc(20% - 12px); }
 .big-item .frame { height: 155px; background: linear-gradient(to top left, #2b2530, 30%, #4b4150); }
-.big-item .art { background-size: auto 185px; }
+.big-item .art { background-size: auto 270px; }
 
 /* 小图（其余，方形头像） */
 .small-item { width: 100px; }

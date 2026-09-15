@@ -31,6 +31,39 @@ const PROFESSIONS = new Set([
   'PIONEER', 'WARRIOR', 'TANK', 'SNIPER', 'CASTER', 'MEDIC', 'SUPPORT', 'SPECIAL',
 ]);
 
+const PRTS_API = 'https://prts.wiki/api.php';
+const ART_WIDTH = 512; // 结果页立绘缩略图宽度
+
+// 批量向 PRTS 查询「立绘_<名>_1.png」的缩略图直链，返回 name -> url
+async function fetchArtUrls(names) {
+  const out = new Map();
+  const norm = (n) => '文件:立绘 ' + n + ' 1.png'; // MediaWiki 规范化后的标题
+  for (let i = 0; i < names.length; i += 50) {
+    const batch = names.slice(i, i + 50);
+    const titles = batch.map((n) => 'File:立绘_' + n + '_1.png').join('|');
+    const url =
+      PRTS_API + '?action=query&format=json&prop=imageinfo&iiprop=url' +
+      '&iiurlwidth=' + ART_WIDTH + '&titles=' + encodeURIComponent(titles);
+    let pages = {};
+    try {
+      const r = await fetch(url, { headers: { 'User-Agent': 'ak-sorter-build/1.0' } });
+      pages = (await r.json()).query?.pages || {};
+    } catch (e) {
+      console.warn('  PRTS batch failed:', e.message);
+    }
+    const byTitle = {};
+    for (const k in pages) byTitle[pages[k].title] = pages[k];
+    for (const n of batch) {
+      const p = byTitle[norm(n)];
+      const ii = p && p.imageinfo && p.imageinfo[0];
+      if (ii) out.set(n, ii.thumburl || ii.url);
+    }
+    process.stdout.write('\r  PRTS art: ' + Math.min(i + 50, names.length) + '/' + names.length);
+  }
+  process.stdout.write('\n');
+  return out;
+}
+
 async function main() {
   console.log('Downloading character_table.json ...');
   const res = await fetch(CHAR_TABLE);
@@ -56,6 +89,16 @@ async function main() {
 
   // Sort: rarity desc, then original sortIndex-ish by id for stability
   ops.sort((a, b) => b.rarity - a.rarity || a.id.localeCompare(b.id));
+
+  // 从 PRTS 拉取全身立绘直链（结果页领奖台/大图用）
+  console.log('Fetching PRTS art URLs ...');
+  const artMap = await fetchArtUrls(ops.map((o) => o.name));
+  let artHit = 0;
+  for (const o of ops) {
+    const u = artMap.get(o.name);
+    if (u) { o.art = u; artHit++; }
+  }
+  console.log('PRTS art matched:', artHit, '/', ops.length);
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const payload = { avatarBase: AVATAR_BASE, portraitBase: PORTRAIT_BASE, operators: ops };

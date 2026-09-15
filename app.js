@@ -224,15 +224,17 @@
   function medalClass(k) { return ['gold', 'silver', 'bronze'][k] || ''; }
 
   const portrait1Url = (o) => PORTRAIT_BASE + '/' + o.id + '_1.png';
+  // 结果页立绘：优先 PRTS 全身立绘，缺失回退到 CDN 半身像
+  const artUrl = (o) => o.art || portrait1Url(o);
 
-  // 领奖台 / 大图条目：横版半身立绘（只露头到腰）+ 名次角标 + 名字
+  // 领奖台 / 大图条目：横版半身立绘（只露头到胸）+ 名次角标 + 名字
   function bigItem(op, rank, cls) {
     const el = document.createElement('div');
     el.className = 'rank-item banner-item ' + cls;
     el.dataset.r = op.rarity;
     el.innerHTML =
       '<div class="frame">' +
-      '<div class="art" style="background-image:url(' + portrait1Url(op) + ')"></div>' +
+      '<div class="art" style="background-image:url(' + artUrl(op) + ')"></div>' +
       '<span class="place-badge">#' + rank + '</span></div>' +
       '<div class="rk-name">' + op.name + '</div>' +
       '<div class="rk-sub">' + opSub(op) + '</div>';
