@@ -106,6 +106,8 @@ html, body {
 .chip.active[data-rarity="2"] { background: var(--r2); border-color: var(--r2); }
 .chip.active[data-rarity="1"] { background: var(--r1); border-color: var(--r1); }
 .chip.active[data-cls] { background: var(--accent-2); border-color: var(--accent-2); }
+.chip.active[data-nation] { background: #ff7ac0; border-color: #ff7ac0; }
+.btn.small { padding: 5px 10px; font-size: 12px; white-space: nowrap; }
 
 /* ---------------- grid ---------------- */
 .grid {
@@ -164,7 +166,8 @@ html, body {
 .progress-info { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
 .progress-bar { height: 8px; background: var(--bg-3); border-radius: 999px; overflow: hidden; }
 .progress-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent-2), var(--accent)); transition: width .2s; }
-.vs-hint { text-align: center; color: var(--muted); font-size: 13px; margin: 18px 0; }
+.vs-toolbar { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 18px 0; flex-wrap: wrap; }
+.vs-hint { text-align: center; color: var(--muted); font-size: 13px; margin: 0; }
 
 .vs {
   display: grid;
@@ -188,7 +191,8 @@ html, body {
   gap: 10px;
 }
 .op-card.choice:hover { border-color: var(--accent); transform: translateY(-3px); }
-.op-card.choice img { width: 150px; height: 150px; border-radius: 12px; object-fit: cover; background: #0a0c0f; }
+.op-card.choice img { width: 150px; height: 150px; border-radius: 12px; object-fit: cover; background: #0a0c0f; transition: .12s; }
+.portrait-mode .op-card.choice img { width: 190px; height: 300px; object-fit: cover; object-position: top center; }
 .op-card .card-name { font-size: 18px; font-weight: 700; }
 .op-card .card-sub { font-size: 12px; color: var(--muted); }
 .op-card[data-r="6"] { border-color: var(--r6); }
@@ -230,10 +234,30 @@ html, body {
 .top3 .rank { font-size: 24px; }
 .result-row.top1 { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
 
+/* ---------------- result stats ---------------- */
+.result-stats { margin: 8px 0 18px; }
+.stat-summary {
+  display: flex; flex-wrap: wrap; gap: 16px;
+  padding: 12px 14px; margin-bottom: 12px;
+  background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px;
+  font-size: 14px; color: var(--muted);
+}
+.stat-summary b { color: var(--text); }
+.stat-blocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.stat-block { background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.stat-block h4 { margin: 0 0 10px; font-size: 14px; color: var(--text); }
+.stat-row { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 13px; }
+.stat-label { width: 56px; color: var(--muted); flex: none; }
+.stat-bar-wrap { flex: 1; height: 10px; background: var(--bg-3); border-radius: 999px; overflow: hidden; }
+.stat-bar { display: block; height: 100%; border-radius: 999px; }
+.stat-num { width: 28px; text-align: right; color: var(--muted); flex: none; }
+
 .sitefoot { text-align: center; color: var(--muted); font-size: 12px; padding: 24px 16px 40px; }
 
 @media (max-width: 560px) {
   .op-card.choice img { width: 110px; height: 110px; }
+  .portrait-mode .op-card.choice img { width: 110px; height: 180px; }
+  .op-card.choice { padding: 10px; }
   .vs { gap: 8px; }
 }
 

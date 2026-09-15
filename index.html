@@ -4,6 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Arknights Sorter</title>
+  <meta name="description" content="明日方舟干员排序器：通过两两对比，排出你心中的干员喜爱度榜单。" />
+  <!-- 分享预览（Open Graph / Twitter Card） -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Arknights Sorter" />
+  <meta property="og:title" content="Arknights Sorter · 明日方舟干员排序器" />
+  <meta property="og:description" content="两两对比，排出你心中的干员喜爱度榜单。快来试试排出你的本命！" />
+  <meta property="og:url" content="https://katatsu-chen.github.io/arknights-operator-sorter/" />
+  <meta property="og:image" content="https://cdn.jsdelivr.net/gh/yuanyan3060/ArknightsGameResource@main/portrait/char_002_amiya_2.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Arknights Sorter · 明日方舟干员排序器" />
+  <meta name="twitter:description" content="两两对比，排出你心中的干员喜爱度榜单。" />
+  <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/yuanyan3060/ArknightsGameResource@main/portrait/char_002_amiya_2.png" />
+  <link rel="icon" href="https://cdn.jsdelivr.net/gh/yuanyan3060/ArknightsGameResource@main/avatar/char_002_amiya.png" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -26,6 +39,7 @@
         </div>
         <div class="toolbar-row filters" id="rarity-filters"></div>
         <div class="toolbar-row filters" id="class-filters"></div>
+        <div class="toolbar-row filters" id="nation-filters"></div>
         <div class="toolbar-row presets">
           <button class="btn ghost" data-preset="all">全选</button>
           <button class="btn ghost" data-preset="none">清空</button>
@@ -53,7 +67,10 @@
         <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
       </div>
 
-      <p class="vs-hint">你更喜欢哪一位？（键盘 ← → 选择，↓ 或空格 平局，退格 撤销）</p>
+      <div class="vs-toolbar">
+        <p class="vs-hint">你更喜欢哪一位？（键盘 ← → 选择，↓ 或空格 平局，退格 撤销）</p>
+        <button class="btn ghost small" id="portrait-toggle" title="切换头像 / 精二立绘">🖼 立绘</button>
+      </div>
 
       <div class="vs">
         <button class="op-card choice" id="choice-left"></button>
@@ -83,6 +100,7 @@
           <button class="btn ghost" id="print-btn">保存 / 打印</button>
         </div>
       </div>
+      <div id="result-stats" class="result-stats"></div>
       <ol id="result-list" class="result-list"></ol>
     </section>
   </main>

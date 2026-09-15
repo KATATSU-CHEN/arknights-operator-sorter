@@ -7,11 +7,25 @@
   const DATA = window.ARK_DATA || { avatarBase: '', operators: [] };
   const OPS = DATA.operators;
   const AVATAR_BASE = DATA.avatarBase;
+  const PORTRAIT_BASE = DATA.portraitBase || AVATAR_BASE;
 
   const CLASS_LABEL = {
     PIONEER: '先锋', WARRIOR: '近卫', TANK: '重装', SNIPER: '狙击',
     CASTER: '术师', MEDIC: '医疗', SUPPORT: '辅助', SPECIAL: '特种',
   };
+
+  // 阵营 / 势力（nationId → 中文），按干员数量大致排序
+  const NATION_LABEL = {
+    rhodes: '罗德岛', columbia: '哥伦比亚', victoria: '维多利亚', yan: '炎国',
+    lungmen: '龙门', sargon: '萨尔贡', siracusa: '叙拉古', laterano: '拉特兰',
+    ursus: '乌萨斯', rim: '雷姆必拓', kazimierz: '卡西米尔', kjerag: '谢拉格',
+    higashi: '东国', leithanien: '莱塔尼亚', egir: '阿戈尔', iberia: '伊比利亚',
+    bolivar: '玻利瓦尔', sami: '萨米', minos: '米诺斯',
+  };
+  const NATION_ORDER = ['rhodes', 'columbia', 'victoria', 'yan', 'lungmen', 'sargon',
+    'siracusa', 'laterano', 'ursus', 'rim', 'kazimierz', 'kjerag', 'higashi',
+    'leithanien', 'egir', 'iberia', 'bolivar', 'sami', 'minos'];
+  const nationName = (id) => NATION_LABEL[id] || (id ? id : '其他');
 
   // 灰色占位头像（加载失败时）
   const PLACEHOLDER =
@@ -27,7 +41,24 @@
 
   function avatarUrl(o) { return AVATAR_BASE + '/' + o.id + '.png'; }
   function onImgError(img) { img.onerror = null; img.src = PLACEHOLDER; }
-  function opSub(o) { return '★'.repeat(o.rarity) + ' · ' + (CLASS_LABEL[o.cls] || o.cls); }
+  function opSub(o) {
+    const parts = ['★'.repeat(o.rarity), CLASS_LABEL[o.cls] || o.cls];
+    if (o.nation) parts.push(nationName(o.nation));
+    return parts.join(' · ');
+  }
+
+  // 立绘加载链：精二立绘 _2 → 精一立绘 _1 → 头像 → 占位图
+  function portraitImg(img, o) {
+    const chain = [
+      PORTRAIT_BASE + '/' + o.id + '_2.png',
+      PORTRAIT_BASE + '/' + o.id + '_1.png',
+      AVATAR_BASE + '/' + o.id + '.png',
+      PLACEHOLDER,
+    ];
+    let step = 0;
+    img.onerror = function () { step++; if (step < chain.length) img.src = chain[step]; else img.onerror = null; };
+    img.src = chain[0];
+  }
 
   const Sorter = window.Sorter; // 来自 sorter-core.js
 
@@ -50,7 +81,9 @@
     selected: new Set(),
     rarityFilter: new Set(),   // 空 = 全部
     classFilter: new Set(),    // 空 = 全部
+    nationFilter: new Set(),   // 空 = 全部
     search: '',
+    usePortrait: true,         // 对比页默认显示精二立绘
     sorter: null,
   };
 
@@ -76,6 +109,20 @@
       c.onclick = () => { toggleSet(state.classFilter, k); c.classList.toggle('active'); renderGrid(); };
       cf.appendChild(c);
     });
+
+    // 阵营：按预定义顺序，仅显示数据中实际存在的
+    const present = new Set(OPS.map((o) => o.nation).filter(Boolean));
+    const nations = NATION_ORDER.filter((n) => present.has(n));
+    const nf = $('#nation-filters');
+    nf.innerHTML = '<span class="hint" style="margin-right:4px">阵营</span>';
+    nations.forEach((n) => {
+      const c = document.createElement('span');
+      c.className = 'chip';
+      c.dataset.nation = n;
+      c.textContent = NATION_LABEL[n];
+      c.onclick = () => { toggleSet(state.nationFilter, n); c.classList.toggle('active'); renderGrid(); };
+      nf.appendChild(c);
+    });
   }
 
   function toggleSet(set, v) { if (set.has(v)) set.delete(v); else set.add(v); }
@@ -85,6 +132,7 @@
     return OPS.filter((o) => {
       if (state.rarityFilter.size && !state.rarityFilter.has(o.rarity)) return false;
       if (state.classFilter.size && !state.classFilter.has(o.cls)) return false;
+      if (state.nationFilter.size && !state.nationFilter.has(o.nation)) return false;
       if (q && !(o.name.toLowerCase().includes(q) || o.en.toLowerCase().includes(q))) return false;
       return true;
     });
@@ -142,15 +190,19 @@
   function renderCard(el, op) {
     el.dataset.r = op.rarity;
     el.innerHTML =
-      '<img src="' + avatarUrl(op) + '" alt="">' +
+      '<img class="card-img" alt="">' +
       '<div class="card-name">' + op.name + '</div>' +
       '<div class="card-sub">' + opSub(op) + '</div>';
-    el.querySelector('img').addEventListener('error', function () { onImgError(this); });
+    const img = el.querySelector('img');
+    if (state.usePortrait) portraitImg(img, op);
+    else { img.addEventListener('error', function () { onImgError(this); }); img.src = avatarUrl(op); }
   }
 
   function renderSortStep() {
     const s = state.sorter;
     if (s.finished) { renderResult(); return; }
+    $('#view-sort').classList.toggle('portrait-mode', state.usePortrait);
+    $('#portrait-toggle').textContent = state.usePortrait ? '🖼 立绘' : '🙂 头像';
     const { a, b } = s.current();
     renderCard($('#choice-left'), a);
     renderCard($('#choice-right'), b);
@@ -192,8 +244,79 @@
       '共 ' + n + ' 名干员' +
       (sharedRanked ? '（分享榜单）' : '，进行了 ' + state.sorter.comparisons + ' 次对比') +
       ' · ' + new Date().toLocaleString('zh-CN');
+    renderStats(ranked);
     state._lastRanked = ranked;
     showView('result');
+  }
+
+  // 结果统计：稀有度 / 职业 / 阵营分布 + 偏好摘要
+  function renderStats(ranked) {
+    const box = $('#result-stats');
+    const n = ranked.length;
+    if (!n) { box.innerHTML = ''; return; }
+
+    const count = (keyFn) => {
+      const m = new Map();
+      ranked.forEach((r) => { const k = keyFn(r.op); m.set(k, (m.get(k) || 0) + 1); });
+      return m;
+    };
+    // 加权：越靠前分越高（第1名得n分，末名得1分），衡量“偏好”
+    const weight = (keyFn) => {
+      const m = new Map();
+      ranked.forEach((r, i) => { const k = keyFn(r.op); m.set(k, (m.get(k) || 0) + (n - i)); });
+      return m;
+    };
+
+    const RARITY_COLOR = { 6: 'var(--r6)', 5: 'var(--r5)', 4: 'var(--r4)', 3: 'var(--r3)', 2: 'var(--r2)', 1: 'var(--r1)' };
+
+    function barGroup(title, entries, colorFn) {
+      const max = Math.max(1, ...entries.map((e) => e.v));
+      const rows = entries.map((e) =>
+        '<div class="stat-row">' +
+        '<span class="stat-label">' + e.label + '</span>' +
+        '<span class="stat-bar-wrap"><span class="stat-bar" style="width:' +
+        Math.round((e.v / max) * 100) + '%;background:' + (colorFn ? colorFn(e.k) : 'var(--accent-2)') + '"></span></span>' +
+        '<span class="stat-num">' + e.v + '</span></div>'
+      ).join('');
+      return '<div class="stat-block"><h4>' + title + '</h4>' + rows + '</div>';
+    }
+
+    // 稀有度分布
+    const rc = count((o) => o.rarity);
+    const rEntries = [6, 5, 4, 3, 2, 1].filter((r) => rc.has(r))
+      .map((r) => ({ k: r, label: r + '★', v: rc.get(r) }));
+
+    // 职业分布
+    const cc = count((o) => o.cls);
+    const cEntries = Object.keys(CLASS_LABEL).filter((k) => cc.has(k))
+      .map((k) => ({ k, label: CLASS_LABEL[k], v: cc.get(k) }))
+      .sort((a, b) => b.v - a.v);
+
+    // 阵营分布（取前 8）
+    const nc = count((o) => o.nation || '');
+    const nEntries = [...nc.entries()].map(([k, v]) => ({ k, label: nationName(k), v }))
+      .sort((a, b) => b.v - a.v).slice(0, 8);
+
+    // 偏好摘要：加权最高的职业 + 平均稀有度
+    const cw = weight((o) => o.cls);
+    const favCls = [...cw.entries()].sort((a, b) => b[1] - a[1])[0];
+    const avgR = (ranked.reduce((s, r) => s + r.op.rarity, 0) / n).toFixed(2);
+    const top = ranked[0].op;
+
+    const summary =
+      '<div class="stat-summary">' +
+      '<span>🥇 本命：<b>' + top.name + '</b></span>' +
+      '<span>💗 最爱职业：<b>' + (CLASS_LABEL[favCls[0]] || favCls[0]) + '</b></span>' +
+      '<span>⭐ 平均稀有度：<b>' + avgR + '</b></span>' +
+      '</div>';
+
+    box.innerHTML =
+      summary +
+      '<div class="stat-blocks">' +
+      barGroup('稀有度分布', rEntries, (k) => RARITY_COLOR[k]) +
+      barGroup('职业分布', cEntries) +
+      barGroup('阵营分布 (Top 8)', nEntries) +
+      '</div>';
   }
 
   /* ---------------- 分享链接编解码 ---------------- */
@@ -250,6 +373,10 @@
     $('#choice-left').addEventListener('click', () => doChoose('left'));
     $('#choice-right').addEventListener('click', () => doChoose('right'));
     $('#tie-btn').addEventListener('click', () => doChoose('tie'));
+    $('#portrait-toggle').addEventListener('click', () => {
+      state.usePortrait = !state.usePortrait;
+      renderSortStep();
+    });
     $('#undo-btn').addEventListener('click', () => {
       if (state.sorter.undo()) renderSortStep();
     });

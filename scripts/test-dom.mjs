@@ -38,6 +38,17 @@ ok(typeof window.Sorter === 'function', 'Sorter global present');
 const cards = doc.querySelectorAll('#grid .op');
 ok(cards.length > 0, 'grid rendered operators: ' + cards.length);
 
+// Nation filter chips built
+const nationChips = doc.querySelectorAll('#nation-filters .chip');
+ok(nationChips.length > 0, 'nation filter chips built: ' + nationChips.length);
+// Clicking a nation chip narrows the grid, and clearing restores it
+const total = cards.length;
+nationChips[0].dispatchEvent(new window.Event('click', { bubbles: true }));
+const narrowed = doc.querySelectorAll('#grid .op').length;
+ok(narrowed > 0 && narrowed < total, 'nation filter narrows grid: ' + narrowed + '/' + total);
+nationChips[0].dispatchEvent(new window.Event('click', { bubbles: true }));
+ok(doc.querySelectorAll('#grid .op').length === total, 'nation filter cleared restores grid');
+
 // Select 8 operators by clicking cards
 const N = 8;
 for (let k = 0; k < N; k++) cards[k].dispatchEvent(new window.Event('click', { bubbles: true }));
@@ -47,6 +58,13 @@ ok(!doc.querySelector('#start-btn').disabled, 'start enabled with >=2');
 // Start sorting
 doc.querySelector('#start-btn').dispatchEvent(new window.Event('click', { bubbles: true }));
 ok(!doc.querySelector('#view-sort').classList.contains('hidden'), 'switched to sort view');
+
+// Portrait mode default on; toggle flips it
+ok(doc.querySelector('#view-sort').classList.contains('portrait-mode'), 'portrait mode on by default');
+doc.querySelector('#portrait-toggle').dispatchEvent(new window.Event('click', { bubbles: true }));
+ok(!doc.querySelector('#view-sort').classList.contains('portrait-mode'), 'portrait toggle -> avatar mode');
+doc.querySelector('#portrait-toggle').dispatchEvent(new window.Event('click', { bubbles: true }));
+ok(doc.querySelector('#view-sort').classList.contains('portrait-mode'), 'portrait toggle -> portrait mode');
 
 // Drive comparisons: always pick left, occasionally tie, test one undo
 let steps = 0, didUndo = false;
@@ -67,6 +85,12 @@ ok(didUndo, 'performed an undo mid-sort');
 const rows = doc.querySelectorAll('#result-list .result-row');
 ok(rows.length === N, 'result rows = ' + rows.length + ' (want ' + N + ')');
 ok(doc.querySelector('.result-row .rank').textContent === '1', 'first rank is 1');
+
+// Result stats rendered: summary + 3 bar blocks
+ok(doc.querySelector('#result-stats .stat-summary'), 'stats summary rendered');
+const statBlocks = doc.querySelectorAll('#result-stats .stat-block');
+ok(statBlocks.length === 3, 'stats has 3 blocks (rarity/class/nation): ' + statBlocks.length);
+ok(doc.querySelectorAll('#result-stats .stat-bar').length > 0, 'stats bars rendered');
 
 // Share link round-trip: click copy-link, capture clipboard text, reload with hash
 let copied = '';
