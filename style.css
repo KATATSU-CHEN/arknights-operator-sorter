@@ -211,8 +211,8 @@ html, body {
 .result-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 
 .ranking { margin-top: 4px; }
-.tier-podium { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; gap: 18px; margin-bottom: 26px; }
-.tier-big { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-bottom: 26px; }
+.tier-podium { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-bottom: 24px; }
+.tier-big { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 14px; margin-bottom: 24px; }
 .tier-small { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 14px; }
 
 /* 通用条目 */
@@ -224,9 +224,13 @@ html, body {
   overflow: hidden;
   background: #0a0c0f;
 }
-/* 头像为方图，卡框 1:1，cover 完整显示 */
-.rank-item.square-frame .frame { aspect-ratio: 1 / 1; }
 .rank-item .frame img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+/* 横版半身立绘：图按固定高度铺、顶部对齐，只露出头到腰的一段 */
+.banner-item .art {
+  position: absolute; inset: 0;
+  background-repeat: no-repeat;
+  background-position: center top;
+}
 .rank-item .place-badge {
   position: absolute; right: 6px; bottom: 6px;
   background: rgba(10, 12, 15, .82);
@@ -244,15 +248,23 @@ html, body {
 .rank-item[data-r="2"] .frame { border-color: var(--r2); }
 .rank-item[data-r="1"] .frame { border-color: var(--r1); }
 
-/* 领奖台（前 3 名）：方形头像，金牌最大，底部对齐 */
-.podium-item.gold { width: 180px; }
-.podium-item.silver, .podium-item.bronze { width: 148px; }
-.podium-item .place-badge { font-size: 18px; padding: 3px 11px; }
-.podium-item.gold .frame { box-shadow: 0 0 24px rgba(255, 190, 60, .45); }
-.podium-item .rk-name { font-size: 18px; }
+/* 领奖台（前 3 名）：金牌整行大 banner，银/铜下一行并排 */
+.podium-item.gold { width: 100%; display: flex; flex-direction: column; align-items: center; }
+.podium-item.gold .frame { width: min(560px, 100%); height: 300px; }
+.podium-item.silver, .podium-item.bronze { width: min(300px, calc(50% - 8px)); }
+.podium-item.silver .frame, .podium-item.bronze .frame { height: 250px; }
+.podium-item.gold .art { background-size: auto 340px; }
+.podium-item.silver .art, .podium-item.bronze .art { background-size: auto 290px; }
+.podium-item.gold .frame { background: linear-gradient(to top left, #945101, 28%, #fffbac); box-shadow: 0 0 24px rgba(255, 190, 60, .4); }
+.podium-item.silver .frame { background: linear-gradient(to top left, #4a4560, 28%, #c0ddec); }
+.podium-item.bronze .frame { background: linear-gradient(to top left, #6e4130, 28%, #ffddb8); }
+.podium-item .place-badge { font-size: 22px; padding: 3px 13px; }
+.podium-item .rk-name { font-size: 19px; }
 
-/* 大图（4~18 名）：方形头像卡片网格 */
-.big-item { width: 128px; }
+/* 大图（4~18 名）：横版半身卡片网格 */
+.big-item { width: calc(20% - 12px); }
+.big-item .frame { height: 155px; background: linear-gradient(to top left, #2b2530, 30%, #4b4150); }
+.big-item .art { background-size: auto 185px; }
 
 /* 小图（其余，方形头像） */
 .small-item { width: 100px; }
@@ -260,10 +272,11 @@ html, body {
 .small-item .frame { width: 100px; height: 100px; }
 .small-item .caption { margin-top: 5px; font-size: 13px; word-break: break-word; }
 
-@media (max-width: 560px) {
-  .podium-item.gold { width: 40%; }
-  .podium-item.silver, .podium-item.bronze { width: 34%; }
-  .big-item { width: calc(25% - 12px); }
+@media (max-width: 1000px) { .big-item { width: calc(25% - 11px); } }
+@media (max-width: 700px) {
+  .podium-item.gold, .podium-item.silver, .podium-item.bronze { width: 100%; max-width: none; }
+  .podium-item .frame { height: 220px; }
+  .big-item { width: calc(33.333% - 10px); }
   .small-item { width: calc(25% - 11px); }
   .small-item .frame { width: 100%; height: auto; aspect-ratio: 1 / 1; }
 }
