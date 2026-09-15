@@ -1,10 +1,7 @@
 // Validates the interactive merge-sort engine.
 // Run: node sorter/scripts/test-sorter.mjs
-import { createRequire } from 'node:module';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-const require = createRequire(import.meta.url);
-const { Sorter } = require(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'sorter-core.js'));
+import '../sorter-core.js'; // 副作用：设置 globalThis.Sorter
+const Sorter = globalThis.Sorter;
 
 let pass = 0, fail = 0;
 function ok(cond, msg) { if (cond) { pass++; } else { fail++; console.error('  FAIL:', msg); } }
@@ -95,6 +92,46 @@ for (let n = 0; n <= 50; n++) {
   for (let k = 0; k < steps; k++) s.undo();
   ok(JSON.stringify({ runs: s.runs, cur: s.current() }) === start, 'undo all the way back to start');
   ok(s.comparisons === 0 && s.history.length === 0, 'counters reset after full undo');
+}
+
+// 6b) Progress percentage: monotonic non-decreasing, ends at 100, sane range
+for (const [n, tie] of [[13, false], [40, true], [64, false], [7, true]]) {
+  const items = Array.from({ length: n }, (_, i) => ({ id: 'p' + i, v: Math.floor(Math.random() * 5) }));
+  const s = new Sorter(items);
+  let prev = -1, monotonic = true, guard = 0;
+  while (!s.finished) {
+    if (++guard > 100000) break;
+    const p = s.percent();
+    if (p < prev) monotonic = false;
+    prev = p;
+    const { a, b } = s.current();
+    // with ties enabled, equal values tie; otherwise pick better
+    const dir = tie && a.v === b.v ? 'tie' : a.v >= b.v ? 'left' : 'right';
+    s.choose(dir);
+  }
+  ok(monotonic, `progress monotonic (n=${n}, tie=${tie})`);
+  ok(s.percent() === 100, `progress ends at 100 (n=${n}, tie=${tie})`);
+  ok(s.placed === s.totalPlace, `placed==totalPlace at end (n=${n}) ${s.placed}/${s.totalPlace}`);
+}
+
+// 6c) Progress reflects real advance early on (not stuck at 0 after a few picks)
+{
+  const n = 32;
+  const items = Array.from({ length: n }, (_, i) => ({ id: 'q' + i, v: n - i }));
+  const s = new Sorter(items);
+  for (let k = 0; k < 8 && !s.finished; k++) { const { a, b } = s.current(); s.choose(a.v > b.v ? 'left' : 'right'); }
+  ok(s.percent() > 0 && s.percent() < 100, 'progress advances after a few comparisons: ' + s.percent() + '%');
+}
+
+// 6d) Progress round-trips through undo
+{
+  const items = Array.from({ length: 20 }, (_, i) => ({ id: 'u' + i, v: Math.random() }));
+  const s = new Sorter(items);
+  const { a, b } = s.current();
+  const p0 = s.percent();
+  s.choose(a.v > b.v ? 'left' : 'right');
+  s.undo();
+  ok(s.percent() === p0, 'percent restored after undo');
 }
 
 // 6) Edge cases: 0 and 1 items

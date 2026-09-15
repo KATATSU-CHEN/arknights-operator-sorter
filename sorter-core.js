@@ -2,11 +2,11 @@
  * 支持平局(tie)与撤销(undo)。可在浏览器与 Node 中使用。
  * items 需为对象数组，且每个对象具有唯一的 .id 字段。
  */
-(function (root, factory) {
+(function (factory) {
   const Sorter = factory();
-  if (typeof module !== 'undefined' && module.exports) module.exports = { Sorter };
-  else root.Sorter = Sorter;
-})(typeof self !== 'undefined' ? self : this, function () {
+  if (typeof globalThis !== 'undefined') globalThis.Sorter = Sorter; // 浏览器 / Node(ESM)
+  if (typeof module !== 'undefined' && module.exports) module.exports = { Sorter }; // Node(CJS)
+})(function () {
   'use strict';
 
   class Sorter {
@@ -21,16 +21,35 @@
       this.history = [];
       this.finished = false;
       this.result = null;
+      // 对比次数的粗略估计（仅用于选择页提示）
       this.estimate = items.length < 2 ? 1 : Math.ceil(items.length * Math.log2(items.length));
+      // 进度用「元素归位数」度量：确定性、单调、与平局无关，结束时恰为 100%
+      this.placed = 0;
+      this.totalPlace = Sorter._totalPlacements(items.length);
       this._prepare();
+    }
+
+    // 归并排序中所有 merge 会把元素归位的总次数（只与 n 有关）
+    static _totalPlacements(n) {
+      if (n < 2) return 1;
+      let sizes = new Array(n).fill(1);
+      let total = 0;
+      while (sizes.length > 1) {
+        const next = [];
+        let i = 0;
+        while (i + 1 < sizes.length) { const m = sizes[i] + sizes[i + 1]; total += m; next.push(m); i += 2; }
+        if (i < sizes.length) next.push(sizes[i]); // 奇数段直接进位，不产生归位
+        sizes = next;
+      }
+      return total || 1;
     }
 
     _prepare() {
       while (true) {
         if (this.left) {
           if (this.i < this.left.length && this.j < this.right.length) return;
-          while (this.i < this.left.length) this.merged.push(this.left[this.i++]);
-          while (this.j < this.right.length) this.merged.push(this.right[this.j++]);
+          while (this.i < this.left.length) { this.merged.push(this.left[this.i++]); this.placed++; }
+          while (this.j < this.right.length) { this.merged.push(this.right[this.j++]); this.placed++; }
           this.next.push(this.merged);
           this.left = null; this.right = null; this.merged = [];
           continue;
@@ -69,6 +88,7 @@
         right: this.right ? this.right.slice() : null,
         ri: this.ri, i: this.i, j: this.j,
         comparisons: this.comparisons,
+        placed: this.placed,
         finished: this.finished,
         uf: new Map(this.uf),
       });
@@ -89,9 +109,9 @@
       this._snapshot();
       const a = this.left[this.i];
       const b = this.right[this.j];
-      if (dir === 'left') { this.merged.push(a); this.i++; }
-      else if (dir === 'right') { this.merged.push(b); this.j++; }
-      else { this.merged.push(a); this.i++; this.merged.push(b); this.j++; this._union(a.id, b.id); }
+      if (dir === 'left') { this.merged.push(a); this.i++; this.placed++; }
+      else if (dir === 'right') { this.merged.push(b); this.j++; this.placed++; }
+      else { this.merged.push(a); this.i++; this.merged.push(b); this.j++; this.placed += 2; this._union(a.id, b.id); }
       this.comparisons++;
       this._prepare();
     }
@@ -103,6 +123,7 @@
       this.left = s.left; this.right = s.right;
       this.ri = s.ri; this.i = s.i; this.j = s.j;
       this.comparisons = s.comparisons;
+      this.placed = s.placed;
       this.finished = s.finished;
       this.uf = s.uf;
       this.result = null;
@@ -111,7 +132,7 @@
 
     percent() {
       if (this.finished) return 100;
-      return Math.min(99, Math.floor((this.comparisons / this.estimate) * 100));
+      return Math.min(99, Math.floor((this.placed / this.totalPlace) * 100));
     }
 
     ranked() {
