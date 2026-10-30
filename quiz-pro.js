@@ -235,7 +235,9 @@
     game.revealed = 0;
     game.over = false;
 
-    $('#gp-art', viewEl).style.backgroundImage = 'url(' + roundArt(target) + ')';
+    const artEl = $('#gp-art', viewEl);
+    artEl.classList.remove('full'); // 新回合恢复填满取景框（配合贴块）
+    artEl.style.backgroundImage = 'url(' + roundArt(target) + ')';
     buildGrid();
     revealTiles(STAGES[0].add);
 
@@ -305,6 +307,7 @@
   function finish(resultText) {
     game.over = true;
     revealAll();
+    $('#gp-art', viewEl).classList.add('full'); // 揭晓时完整展示立绘（避免头部被裁切）
     const nameEl = $('#gp-name', viewEl);
     nameEl.innerHTML = '<div class="gp-name-main">' + game.target.name + '</div>' +
       '<div class="gp-name-sub">' + opSub(game.target) + '</div>';

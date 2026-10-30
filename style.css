@@ -417,7 +417,8 @@ a.sidenav-item { text-decoration: none; }
   border: 3px solid var(--line); border-radius: 12px; overflow: hidden;
   background: radial-gradient(120% 90% at 50% 0%, #2a3038, #0a0c0f 80%);
 }
-.gp-art { position: absolute; inset: 0; background-repeat: no-repeat; background-position: center; background-size: cover; }
+.gp-art { position: absolute; inset: 0; background-repeat: no-repeat; background-position: center; background-size: cover; transition: background-size .35s ease; }
+.gp-art.full { background-size: contain; }
 .gp-grid { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); }
 .gp-tile { background: #0e1116; border: 1px solid rgba(0, 0, 0, .4); transition: opacity .45s ease; }
 .gp-tile.revealed { opacity: 0; }
