@@ -11,9 +11,9 @@
   const DIRS = [[0, 1], [1, 0], [1, 1], [1, -1]];
 
   const DIFFS = {
-    easy: { name: '简单', depth: 0, topK: 0, avatar: 'assets/chess/easy.png', desc: '望ai 随手下，热身用' },
-    hard: { name: '困难', depth: 2, topK: 12, avatar: 'assets/chess/hard.png', desc: '会抢攻会封堵，得认真' },
-    wang: { name: '望哥', depth: 4, topK: 8, avatar: 'assets/chess/wang.png', desc: '望ai 全力以赴，小心被打穿' },
+    easy: { name: '简单', depth: 0, topK: 0, avatar: 'assets/chess/easy.png?v=2', desc: '望ai 随手下，热身用' },
+    hard: { name: '困难', depth: 2, topK: 12, avatar: 'assets/chess/hard.png?v=2', desc: '会抢攻会封堵，得认真' },
+    wang: { name: '望哥', depth: 4, topK: 8, avatar: 'assets/chess/wang.png?v=2', desc: '望ai 全力以赴，小心被打穿' },
   };
 
   const $ = (sel, root) => (root || document).querySelector(sel);
