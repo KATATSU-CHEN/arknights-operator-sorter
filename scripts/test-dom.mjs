@@ -185,5 +185,54 @@ ok(GP.game.revealed === 20, 'give up reveals the full illustration');
 ok(doc.querySelector('#gp-name').classList.contains('show'), 'give up shows the answer name');
 ok(!doc.querySelector('#gp-result').classList.contains('hidden'), 'give up shows result panel');
 
+// ---------------- 进度保存 / 恢复（引擎序列化） ----------------
+{
+  const S = window.Sorter;
+  const sample = window.ARK_DATA.operators.slice(0, 9);
+  const a = new S(sample);
+  for (let k = 0; k < 5 && !a.finished; k++) a.choose(k % 3 === 0 ? 'tie' : 'left');
+  const json = JSON.parse(JSON.stringify(a.toJSON())); // 模拟存入 localStorage 再取出
+  const b = S.fromJSON(json, sample);
+  ok(b.comparisons === a.comparisons, 'resume: comparisons preserved');
+  ok(b.percent() === a.percent(), 'resume: percent preserved');
+  const ca = a.current(), cb = b.current();
+  ok((!ca && !cb) || (ca && cb && ca.a.id === cb.a.id && ca.b.id === cb.b.id), 'resume: current pair preserved');
+  ok(b.undo() === true, 'resume: undo works after restore');
+  while (!a.finished) a.choose('left');
+  const c = S.fromJSON(json, sample);
+  while (!c.finished) c.choose('left');
+  const key = (s) => JSON.stringify(s.ranked().map((r) => r.op.id + ':' + r.rank));
+  ok(key(c) === key(a), 'resume: same choices complete to identical ranking');
+}
+
+// ---------------- 进度保存 / 恢复（UI 全流程） ----------------
+{
+  const dom3 = new JSDOM(html, { runScripts: 'outside-only', virtualConsole: vc, url: 'http://localhost/' });
+  dom3.window.alert = () => {}; dom3.window.scrollTo = () => {}; dom3.window.confirm = () => true;
+  dom3.window.eval(read('data/operators.js'));
+  dom3.window.eval(read('sorter-core.js'));
+  dom3.window.eval(read('app.js'));
+  const d3 = dom3.window.document;
+  const fire = (el) => el.dispatchEvent(new dom3.window.Event('click', { bubbles: true }));
+  const cc = d3.querySelectorAll('#grid .op');
+  for (let k = 0; k < 6; k++) fire(cc[k]);
+  fire(d3.querySelector('#start-btn'));
+  fire(d3.querySelector('#choice-left'));
+  fire(d3.querySelector('#choice-left'));
+  ok(!!dom3.window.localStorage.getItem('ark_sorter_progress_v1'), 'progress auto-saved to localStorage');
+  fire(d3.querySelector('#quit-btn'));
+  ok(!d3.querySelector('#view-select').classList.contains('hidden'), 'quit returns to select view');
+  ok(!d3.querySelector('#resume-bar').classList.contains('hidden'), 'resume bar shown after quit');
+  fire(d3.querySelector('#resume-btn'));
+  ok(!d3.querySelector('#view-sort').classList.contains('hidden'), 'resume reopens sort view');
+  ok(d3.querySelector('#progress-text').textContent.includes('第 3'), 'resume continues at 3rd comparison');
+  // 完成排序后进度被清除
+  let guard = 0;
+  while (d3.querySelector('#view-result').classList.contains('hidden') && guard++ < 5000) {
+    fire(d3.querySelector('#choice-left'));
+  }
+  ok(!dom3.window.localStorage.getItem('ark_sorter_progress_v1'), 'progress cleared after finishing');
+}
+
 console.log(fail ? `\nDOM smoke test: ${fail} failures` : '\nDOM smoke test: all checks passed');
 process.exit(fail ? 1 : 0);

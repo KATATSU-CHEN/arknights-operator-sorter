@@ -160,6 +160,54 @@
       }
       return out;
     }
+
+    /* ---------------- 序列化（保存/恢复进度） ---------------- */
+    // 仅存 id，恢复时用 items 还原对象引用
+    toJSON() {
+      const ids = (arr) => arr.map((x) => x.id);
+      const runsIds = (arr) => arr.map((r) => ids(r));
+      const snap = (s) => ({
+        runs: runsIds(s.runs), next: runsIds(s.next), merged: ids(s.merged),
+        left: s.left ? ids(s.left) : null, right: s.right ? ids(s.right) : null,
+        ri: s.ri, i: s.i, j: s.j, comparisons: s.comparisons, placed: s.placed,
+        finished: s.finished, uf: Array.from(s.uf.entries()),
+      });
+      return {
+        v: 1,
+        runs: runsIds(this.runs), next: runsIds(this.next), merged: ids(this.merged),
+        left: this.left ? ids(this.left) : null, right: this.right ? ids(this.right) : null,
+        ri: this.ri, i: this.i, j: this.j,
+        comparisons: this.comparisons, placed: this.placed, finished: this.finished,
+        result: this.result ? ids(this.result) : null,
+        uf: Array.from(this.uf.entries()),
+        history: this.history.map(snap),
+      };
+    }
+
+    // items：本次排序涉及的干员对象数组（与保存时相同的一批）
+    static fromJSON(data, items) {
+      const byId = new Map(items.map((o) => [o.id, o]));
+      const toOps = (arr) => arr.map((id) => byId.get(id)).filter(Boolean);
+      const toRuns = (arr) => arr.map((r) => toOps(r));
+      const s = new Sorter(items); // 先用同一批 items 初始化 estimate/totalPlace
+      s.runs = toRuns(data.runs);
+      s.next = toRuns(data.next);
+      s.merged = toOps(data.merged);
+      s.left = data.left ? toOps(data.left) : null;
+      s.right = data.right ? toOps(data.right) : null;
+      s.ri = data.ri; s.i = data.i; s.j = data.j;
+      s.comparisons = data.comparisons; s.placed = data.placed;
+      s.finished = data.finished;
+      s.result = data.result ? toOps(data.result) : null;
+      s.uf = new Map(data.uf);
+      s.history = (data.history || []).map((h) => ({
+        runs: toRuns(h.runs), next: toRuns(h.next), merged: toOps(h.merged),
+        left: h.left ? toOps(h.left) : null, right: h.right ? toOps(h.right) : null,
+        ri: h.ri, i: h.i, j: h.j, comparisons: h.comparisons, placed: h.placed,
+        finished: h.finished, uf: new Map(h.uf),
+      }));
+      return s;
+    }
   }
 
   return Sorter;

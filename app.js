@@ -85,7 +85,80 @@
     search: '',
     usePortrait: true,         // 对比页默认显示精二立绘
     sorter: null,
+    sortItems: null,           // 本次排序涉及的干员（用于保存/恢复）
   };
+
+  /* ---------------- 进度保存 / 恢复 ---------------- */
+  const SAVE_KEY = 'ark_sorter_progress_v1';
+
+  function saveProgress() {
+    const s = state.sorter;
+    if (!s || s.finished || !state.sortItems) { return; }
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({
+        v: 1,
+        ts: Date.now(),
+        itemIds: state.sortItems.map((o) => o.id),
+        sorter: s.toJSON(),
+      }));
+    } catch (e) { /* localStorage 不可用时静默忽略 */ }
+  }
+
+  function clearProgress() {
+    try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+  }
+
+  function loadSavedRaw() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return null;
+      const d = JSON.parse(raw);
+      if (!d || d.v !== 1 || !Array.isArray(d.itemIds) || !d.sorter) return null;
+      return d;
+    } catch (e) { return null; }
+  }
+
+  // 顶部「继续上次排序」条
+  function renderResumeBar() {
+    const bar = $('#resume-bar');
+    if (!bar) return;
+    const d = loadSavedRaw();
+    // 校验：这批干员都还存在，且是一局未完成的排序
+    const valid = d && d.itemIds.length >= 2 && d.itemIds.every((id) => idIndex.has(id)) && !d.sorter.finished;
+    if (!valid) { bar.classList.add('hidden'); bar.innerHTML = ''; return; }
+
+    const n = d.itemIds.length;
+    const placed = d.sorter.placed || 0;
+    const total = Sorter._totalPlacements(n);
+    const pct = Math.min(99, Math.floor((placed / total) * 100));
+    const when = new Date(d.ts || Date.now()).toLocaleString('zh-CN');
+    bar.innerHTML =
+      '<div class="resume-text">🕒 有一局未完成的排序：<b>' + n + '</b> 名干员 · 进度 <b>' + pct +
+      '%</b> · 已对比 ' + (d.sorter.comparisons || 0) + ' 次 · 保存于 ' + when + '</div>' +
+      '<div class="resume-actions">' +
+      '<button class="btn primary small" id="resume-btn">继续排序 →</button>' +
+      '<button class="btn ghost small" id="discard-btn">放弃</button>' +
+      '</div>';
+    bar.classList.remove('hidden');
+    $('#resume-btn').onclick = resumeSort;
+    $('#discard-btn').onclick = () => {
+      if (confirm('放弃已保存的排序进度？此操作不可撤销。')) { clearProgress(); renderResumeBar(); }
+    };
+  }
+
+  function resumeSort() {
+    const d = loadSavedRaw();
+    if (!d) { renderResumeBar(); return; }
+    const items = d.itemIds.map((id) => OPS[idIndex.get(id)]).filter(Boolean);
+    if (items.length !== d.itemIds.length || items.length < 2) { clearProgress(); renderResumeBar(); return; }
+    try {
+      state.sortItems = items;
+      state.sorter = Sorter.fromJSON(d.sorter, items);
+    } catch (e) { clearProgress(); renderResumeBar(); return; }
+    if (state.sorter.finished) { clearProgress(); renderResult(); return; }
+    showView('sort');
+    renderSortStep();
+  }
 
   /* ---------------- 选择页 ---------------- */
   function buildFilterChips() {
@@ -223,7 +296,12 @@
 
   function doChoose(dir) {
     state.sorter.choose(dir);
-    if (state.sorter.finished) renderResult(); else renderSortStep();
+    if (state.sorter.finished) { clearProgress(); renderResult(); }
+    else { saveProgress(); renderSortStep(); }
+  }
+
+  function doUndo() {
+    if (state.sorter && state.sorter.undo()) { saveProgress(); renderSortStep(); }
   }
 
   /* ---------------- 结果页 ---------------- */
@@ -423,7 +501,9 @@
     $('#start-btn').addEventListener('click', () => {
       const items = OPS.filter((o) => state.selected.has(o.id));
       if (items.length < 2) return;
+      state.sortItems = items;
       state.sorter = new Sorter(items);
+      saveProgress();
       showView('sort');
       renderSortStep();
     });
@@ -435,11 +515,13 @@
       state.usePortrait = !state.usePortrait;
       renderSortStep();
     });
-    $('#undo-btn').addEventListener('click', () => {
-      if (state.sorter.undo()) renderSortStep();
-    });
+    $('#undo-btn').addEventListener('click', doUndo);
     $('#quit-btn').addEventListener('click', () => {
-      if (confirm('退出当前排序？进度将丢失。')) showView('select');
+      if (confirm('退出当前排序？进度已自动保存，可在首页「继续排序」。')) {
+        saveProgress();
+        showView('select');
+        renderResumeBar();
+      }
     });
 
     document.addEventListener('keydown', (e) => {
@@ -447,17 +529,22 @@
       if (e.key === 'ArrowLeft') { doChoose('left'); e.preventDefault(); }
       else if (e.key === 'ArrowRight') { doChoose('right'); e.preventDefault(); }
       else if (e.key === 'ArrowDown' || e.key === ' ') { doChoose('tie'); e.preventDefault(); }
-      else if (e.key === 'Backspace') { if (state.sorter.undo()) renderSortStep(); e.preventDefault(); }
+      else if (e.key === 'Backspace') { doUndo(); e.preventDefault(); }
     });
 
     $('#restart-btn').addEventListener('click', () => {
       const items = (state._lastRanked || []).map((r) => r.op);
       if (items.length < 2) { showView('select'); return; }
+      state.sortItems = items;
       state.sorter = new Sorter(items);
+      saveProgress();
       showView('sort');
       renderSortStep();
     });
-    $('#back-btn').addEventListener('click', () => { history.replaceState(null, '', location.pathname); showView('select'); });
+    $('#back-btn').addEventListener('click', () => { history.replaceState(null, '', location.pathname); showView('select'); renderResumeBar(); });
+
+    // 关闭 / 刷新前兜底保存一次
+    window.addEventListener('pagehide', saveProgress);
 
     $('#copy-text-btn').addEventListener('click', () => {
       const lines = (state._lastRanked || []).map((r) => r.rank + '. ' + r.op.name + '  (' + opSub(r.op) + ')');
@@ -484,6 +571,7 @@
       const ranked = decodeRanked(m[1]);
       if (ranked && ranked.length) { renderResult(ranked); return; }
     }
+    renderResumeBar();
     showView('select');
   }
 

@@ -447,6 +447,17 @@ a.sidenav-item { text-decoration: none; }
 
 @media (max-width: 560px) { .gp-frame { height: 320px; } }
 
+/* 继续上次排序 */
+.resume-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  margin: 0 0 14px; padding: 12px 16px; border-radius: 12px;
+  border: 1px solid var(--accent); background: linear-gradient(180deg, rgba(255, 206, 59, .12), rgba(255, 206, 59, .04));
+}
+.resume-bar.hidden { display: none; }
+.resume-text { color: var(--text); font-size: 13px; }
+.resume-text b { color: var(--accent); }
+.resume-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
 .sitefoot { text-align: center; color: var(--muted); font-size: 12px; padding: 24px 16px 40px; }
 .sitefoot a { color: var(--accent-2); text-decoration: none; }
 .sitefoot a:hover { text-decoration: underline; }
