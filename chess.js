@@ -389,11 +389,14 @@
     if (winner === YOU) {
       game.youWin++; text = '你赢了，望哥对你的棋技感到有点震惊';
       say('可以啊，这局算你的。');
-      img.src = 'assets/chess/win.png?v=1'; img.classList.remove('hidden'); card.classList.add('win');
+      img.src = 'assets/chess/win.png?v=1'; img.classList.remove('hidden'); card.classList.add('has-img');
+    } else if (winner === AI) {
+      game.aiWin++; text = '望 赢了，并笑话你是臭棋篓子';
+      say('就这？臭棋篓子，再来一盘？');
+      img.src = 'assets/chess/lose.png?v=1'; img.classList.remove('hidden'); card.classList.add('has-img');
     } else {
-      img.classList.add('hidden'); card.classList.remove('win');
-      if (winner === AI) { game.aiWin++; text = '💀 望 赢了'; say('五连，我赢了。'); }
-      else { text = '🤝 平局'; say('平手，再来一盘？'); }
+      text = '🤝 平局'; say('平手，再来一盘？');
+      img.classList.add('hidden'); card.classList.remove('has-img');
     }
     renderBoard();
     $('#chess-over-text', viewEl).textContent = text;
