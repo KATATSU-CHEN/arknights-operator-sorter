@@ -9,6 +9,7 @@
   const OPS = DATA.operators || [];
   const AVATAR_BASE = DATA.avatarBase || '';
   const PORTRAIT_BASE = DATA.portraitBase || AVATAR_BASE;
+  const SKIN_BASE = DATA.skinBase || '';
 
   const CLASS_LABEL = {
     PIONEER: '先锋', WARRIOR: '近卫', TANK: '重装', SNIPER: '狙击',
@@ -23,6 +24,14 @@
   };
 
   const artUrl = (o) => o.art || (PORTRAIT_BASE + '/' + o.id + '_1.png');
+  const skinUrl = (file) => SKIN_BASE + '/' + file.replace(/#/g, '%23');
+  // 本回合要展示的立绘：皮肤题库用随机皮肤，其它用默认立绘
+  function roundArt(o) {
+    if (cfg.pool === 'skin' && o.skins && o.skins.length) {
+      return skinUrl(o.skins[Math.floor(Math.random() * o.skins.length)]);
+    }
+    return artUrl(o);
+  }
   const $ = (sel, root) => (root || document).querySelector(sel);
   const opSub = (o) => {
     const parts = ['★'.repeat(o.rarity), CLASS_LABEL[o.cls] || o.cls];
@@ -64,6 +73,7 @@
   }
 
   function poolOps() {
+    if (cfg.pool === 'skin') return OPS.filter((o) => o.skins && o.skins.length);
     if (cfg.pool === 'r6') return OPS.filter((o) => o.rarity === 6);
     if (cfg.pool === 'r56') return OPS.filter((o) => o.rarity >= 5);
     return OPS.slice();
@@ -95,6 +105,7 @@
             '<button class="chip active" data-pool="all">全部干员</button>' +
             '<button class="chip" data-pool="r56">五星及以上</button>' +
             '<button class="chip" data-pool="r6">仅六星</button>' +
+            '<button class="chip" data-pool="skin">皮肤 Guess</button>' +
           '</div></div>' +
         '<div class="quiz-actions">' +
           '<button class="btn primary" id="gp-start">开始挑战 →</button>' +
@@ -222,7 +233,7 @@
     game.revealed = 0;
     game.over = false;
 
-    $('#gp-art', viewEl).style.backgroundImage = 'url(' + artUrl(target) + ')';
+    $('#gp-art', viewEl).style.backgroundImage = 'url(' + roundArt(target) + ')';
     buildGrid();
     revealTiles(STAGES[0].add);
 

@@ -168,5 +168,13 @@ ok(GP.game.solved === 1, 'solved count increments');
 ok(doc.querySelectorAll('#gp-grid .gp-tile.revealed').length === 20, 'all tiles revealed on win');
 ok(!doc.querySelector('#gp-result').classList.contains('hidden'), 'result panel shown on win');
 
+// Skin pool: only operators with skins, and the shown art comes from the skin CDN
+ok(typeof window.ARK_DATA.skinBase === 'string' && window.ARK_DATA.skinBase, 'data has skinBase');
+ok(window.ARK_DATA.operators.some((o) => o.skins && o.skins.length), 'some operators have skins');
+GP.cfg.pool = 'skin';
+GP.startGame();
+ok(GP.game.target && GP.game.target.skins && GP.game.target.skins.length > 0, 'skin round target has skins');
+ok((doc.querySelector('#gp-art').style.backgroundImage || '').includes('/skin/'), 'skin round shows art from skin CDN');
+
 console.log(fail ? `\nDOM smoke test: ${fail} failures` : '\nDOM smoke test: all checks passed');
 process.exit(fail ? 1 : 0);
