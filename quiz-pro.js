@@ -128,6 +128,7 @@
         '<div class="gp-guessbar" id="gp-guessbar">' +
           '<input type="text" id="gp-input" class="gp-input" list="gp-names" placeholder="输入干员名字…" autocomplete="off" />' +
           '<button class="btn primary" id="gp-submit">猜！</button>' +
+          '<button class="btn ghost" id="gp-giveup">不认识</button>' +
           '<span class="gp-chances" id="gp-chances"></span>' +
         '</div>' +
         '<div class="gp-feedback" id="gp-feedback"></div>' +
@@ -153,6 +154,7 @@
     $('#gp-exit-setup', viewEl).addEventListener('click', exitToSorter);
     $('#gp-quit', viewEl).addEventListener('click', exitToSorter);
     $('#gp-submit', viewEl).addEventListener('click', submitGuess);
+    $('#gp-giveup', viewEl).addEventListener('click', giveUp);
     $('#gp-input', viewEl).addEventListener('keydown', (e) => { if (e.key === 'Enter') { submitGuess(); e.preventDefault(); } });
     $('#gp-next', viewEl).addEventListener('click', nextRound);
   }
@@ -327,6 +329,14 @@
     setFeedback('', '');
   }
 
+  // 不认识：直接揭晓答案（本回合算未猜中，连对清零）
+  function giveUp() {
+    if (game.over) return;
+    game.streak = 0;
+    finish('🙈 本回合答案是 <b>' + game.target.name + '</b>');
+    setFeedback('', '');
+  }
+
   /* ---------------- 入口 ---------------- */
   function bind() {
     const entry = document.getElementById('nav-guesspro');
@@ -335,7 +345,7 @@
   bind();
 
   window.__guesspro = {
-    enterGuessPro, startGame, submitGuess, nextRound,
+    enterGuessPro, startGame, submitGuess, giveUp, nextRound,
     stop: function () {}, // 无计时器，占位以便跨玩法协作
     get game() { return game; }, get cfg() { return cfg; },
   };

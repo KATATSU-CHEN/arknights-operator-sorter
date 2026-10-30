@@ -176,5 +176,14 @@ GP.startGame();
 ok(GP.game.target && GP.game.target.skins && GP.game.target.skins.length > 0, 'skin round target has skins');
 ok((doc.querySelector('#gp-art').style.backgroundImage || '').includes('/skin/'), 'skin round shows art from skin CDN');
 
+// Give-up button: reveals the answer and ends the round
+GP.cfg.pool = 'all';
+GP.startGame();
+doc.querySelector('#gp-giveup').click();
+ok(GP.game.over === true, 'give up ends the round');
+ok(GP.game.revealed === 20, 'give up reveals the full illustration');
+ok(doc.querySelector('#gp-name').classList.contains('show'), 'give up shows the answer name');
+ok(!doc.querySelector('#gp-result').classList.contains('hidden'), 'give up shows result panel');
+
 console.log(fail ? `\nDOM smoke test: ${fail} failures` : '\nDOM smoke test: all checks passed');
 process.exit(fail ? 1 : 0);
