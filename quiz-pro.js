@@ -57,7 +57,7 @@
 
   const cfg = { pool: 'all' };
   const game = {
-    target: null, last: null,
+    target: null, last: null, used: new Set(),
     stageIdx: 0, guessesLeft: 0, revealOrder: [], revealed: 0,
     over: false, solved: 0, streak: 0,
   };
@@ -178,7 +178,7 @@
   function startGame() {
     const pool = poolOps();
     if (pool.length < 2) { alert('题库干员太少，换一个题库试试'); return; }
-    game.solved = 0; game.streak = 0;
+    game.solved = 0; game.streak = 0; game.used.clear(); game.last = null;
     $('#gp-setup', viewEl).classList.add('hidden');
     $('#gp-play', viewEl).classList.remove('hidden');
     nextRound();
@@ -220,13 +220,15 @@
 
   function nextRound() {
     const pool = poolOps();
-    let target = pool[Math.floor(Math.random() * pool.length)];
-    if (pool.length > 1) { // 避免连续相同
-      let guard = 0;
-      while (game.last && target.id === game.last.id && guard++ < 10) {
-        target = pool[Math.floor(Math.random() * pool.length)];
-      }
+    // 本轮不重复：排除已出现过的干员；全部出完后再洗牌（并避免紧挨着重复）
+    let avail = pool.filter((o) => !game.used.has(o.id));
+    if (avail.length === 0) {
+      game.used.clear();
+      avail = pool.filter((o) => !game.last || o.id !== game.last.id);
+      if (avail.length === 0) avail = pool.slice();
     }
+    const target = avail[Math.floor(Math.random() * avail.length)];
+    game.used.add(target.id);
     game.target = target;
     game.last = target;
     game.stageIdx = 0;

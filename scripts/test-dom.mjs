@@ -185,6 +185,17 @@ ok(GP.game.revealed === 20, 'give up reveals the full illustration');
 ok(doc.querySelector('#gp-name').classList.contains('show'), 'give up shows the answer name');
 ok(!doc.querySelector('#gp-result').classList.contains('hidden'), 'give up shows result panel');
 
+// Guess Pro: no operator repeats within a run (until the pool is exhausted)
+GP.cfg.pool = 'r6';
+GP.startGame();
+{
+  const poolSize = window.ARK_DATA.operators.filter((o) => o.rarity === 6).length;
+  const seen = [GP.game.target.id];
+  const rounds = Math.min(20, poolSize - 1);
+  for (let k = 0; k < rounds; k++) { GP.nextRound(); seen.push(GP.game.target.id); }
+  ok(new Set(seen).size === seen.length, 'guesspro: no repeats within a run (' + seen.length + ' rounds)');
+}
+
 // ---------------- 进度保存 / 恢复（引擎序列化） ----------------
 {
   const S = window.Sorter;
