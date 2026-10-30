@@ -217,7 +217,8 @@
           '<div class="chess-boardbox">' +
             '<div class="chess-board" id="chess-board"></div>' +
             '<div class="chess-over hidden" id="chess-over">' +
-              '<div class="chess-over-card">' +
+              '<div class="chess-over-card" id="chess-over-card">' +
+                '<img class="chess-over-img hidden" id="chess-over-img" src="" alt="">' +
                 '<div class="chess-over-text" id="chess-over-text"></div>' +
                 '<button class="btn primary" id="chess-again">再来一局</button>' +
               '</div>' +
@@ -382,10 +383,18 @@
 
   function finish(winner) {
     game.over = true; game.thinking = false;
+    const img = $('#chess-over-img', viewEl);
+    const card = $('#chess-over-card', viewEl);
     let text;
-    if (winner === YOU) { game.youWin++; text = '🎉 你赢了！'; say('可以啊，这局算你的。'); }
-    else if (winner === AI) { game.aiWin++; text = '💀 望 赢了'; say('五连，我赢了。'); }
-    else { text = '🤝 平局'; say('平手，再来一盘？'); }
+    if (winner === YOU) {
+      game.youWin++; text = '你赢了，望哥对你的棋技感到有点震惊';
+      say('可以啊，这局算你的。');
+      img.src = 'assets/chess/win.png?v=1'; img.classList.remove('hidden'); card.classList.add('win');
+    } else {
+      img.classList.add('hidden'); card.classList.remove('win');
+      if (winner === AI) { game.aiWin++; text = '💀 望 赢了'; say('五连，我赢了。'); }
+      else { text = '🤝 平局'; say('平手，再来一盘？'); }
+    }
     renderBoard();
     $('#chess-over-text', viewEl).textContent = text;
     $('#chess-over', viewEl).classList.remove('hidden');
