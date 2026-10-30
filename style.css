@@ -410,6 +410,42 @@ a.sidenav-item { text-decoration: none; }
   .quiz-opt { padding: 13px 8px; font-size: 15px; }
 }
 
+/* ---------------- Arknights Guess Pro ---------------- */
+.gp-wrap { display: flex; justify-content: center; margin: 8px 0 16px; }
+.gp-frame {
+  position: relative; width: min(380px, 92vw); height: 380px;
+  border: 3px solid var(--line); border-radius: 12px; overflow: hidden;
+  background: radial-gradient(120% 90% at 50% 0%, #2a3038, #0a0c0f 80%);
+}
+.gp-art { position: absolute; inset: 0; background-repeat: no-repeat; background-position: center; background-size: cover; }
+.gp-grid { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(5, 1fr); }
+.gp-tile { background: #0e1116; border: 1px solid rgba(0, 0, 0, .4); transition: opacity .45s ease; }
+.gp-tile.revealed { opacity: 0; }
+.gp-name {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 10px;
+  text-align: center; opacity: 0; transition: opacity .4s ease;
+  background: linear-gradient(0deg, rgba(10, 12, 15, .92), transparent);
+}
+.gp-name.show { opacity: 1; }
+.gp-name-main { font-size: 20px; font-weight: 800; }
+.gp-name-sub { font-size: 13px; color: var(--muted); }
+
+.gp-guessbar { display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.gp-input {
+  flex: 1; min-width: 200px; max-width: 360px; padding: 12px 14px; font-size: 16px;
+  background: var(--bg-3); border: 2px solid var(--line); border-radius: 10px; color: var(--text);
+}
+.gp-input:focus { outline: none; border-color: var(--accent); }
+.gp-chances { color: var(--muted); font-size: 14px; }
+.gp-feedback { text-align: center; margin-top: 12px; min-height: 22px; font-weight: 600; }
+.gp-feedback.ok { color: #4dd08a; }
+.gp-feedback.bad { color: #ff6b6b; }
+.gp-feedback.info { color: var(--accent-2); }
+.gp-result { text-align: center; margin-top: 16px; }
+.gp-result-text { font-size: 20px; font-weight: 800; margin-bottom: 12px; }
+
+@media (max-width: 560px) { .gp-frame { height: 320px; } }
+
 .sitefoot { text-align: center; color: var(--muted); font-size: 12px; padding: 24px 16px 40px; }
 .sitefoot a { color: var(--accent-2); text-decoration: none; }
 .sitefoot a:hover { text-decoration: underline; }

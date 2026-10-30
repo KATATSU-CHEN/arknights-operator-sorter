@@ -121,25 +121,26 @@
     $('#quiz-exit-over', viewEl).addEventListener('click', exitToSorter);
   }
 
-  // 侧边栏导航高亮
-  function setNav(which) {
-    const s = document.getElementById('nav-sorter');
-    const q = document.getElementById('quiz-entry');
-    if (s) s.classList.toggle('active', which === 'sorter');
-    if (q) q.classList.toggle('active', which === 'quiz');
+  // 侧边栏导航高亮：清空所有再高亮目标 id
+  function setNav(id) {
+    document.querySelectorAll('.sidenav-item').forEach((el) => el.classList.remove('active'));
+    const el = id && document.getElementById(id);
+    if (el) el.classList.add('active');
   }
 
   function exitToSorter() {
     stopTimers();
     showOnly('view-select');
-    setNav('sorter');
+    setNav('nav-sorter');
   }
 
   function enterQuiz() {
+    // 进入时停掉其它玩法
+    if (window.__guesspro && window.__guesspro.stop) window.__guesspro.stop();
     if (!viewEl) buildView();
     showSetup();
     showOnly('view-quiz');
-    setNav('quiz');
+    setNav('quiz-entry');
   }
 
   function showSetup() {
@@ -279,6 +280,6 @@
 
   bind(); // 脚本位于 body 末尾，DOM 已就绪
 
-  // 暴露给测试
-  window.__quiz = { enterQuiz, startGame, poolOps, pickOptions, get game() { return game; }, get cfg() { return cfg; } };
+  // 暴露给测试 / 跨玩法协作
+  window.__quiz = { enterQuiz, startGame, poolOps, pickOptions, stop: stopTimers, get game() { return game; }, get cfg() { return cfg; } };
 })();

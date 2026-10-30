@@ -30,6 +30,7 @@ run(read('data/operators.js'));
 run(read('sorter-core.js'));
 run(read('app.js'));
 run(read('quiz.js'));
+run(read('quiz-pro.js'));
 
 const doc = window.document;
 ok(window.ARK_DATA.operators.length > 0, 'data loaded');
@@ -131,6 +132,41 @@ const before = Q.game.score;
 correctOpts[0].dispatchEvent(new window.Event('click', { bubbles: true }));
 ok(Q.game.score === before + 1, 'correct answer increments score');
 ok(doc.querySelector('#quiz-options .quiz-opt.right'), 'correct option highlighted');
+
+// ---------------- Arknights Guess Pro ----------------
+const GP = window.__guesspro;
+ok(GP && typeof GP.enterGuessPro === 'function', 'guesspro module exposed');
+doc.querySelector('#nav-guesspro').dispatchEvent(new window.Event('click', { bubbles: true }));
+ok(!doc.querySelector('#view-guesspro').classList.contains('hidden'), 'guesspro view shown');
+ok(doc.querySelector('#nav-guesspro').classList.contains('active'), 'guesspro nav active');
+ok(doc.querySelector('#quiz-entry') && !doc.querySelector('#quiz-entry').classList.contains('active'), 'other nav cleared when entering guesspro');
+
+GP.cfg.pool = 'all';
+doc.querySelector('#gp-start').dispatchEvent(new window.Event('click', { bubbles: true }));
+ok(!doc.querySelector('#gp-play').classList.contains('hidden'), 'guesspro play view shown');
+const tiles = doc.querySelectorAll('#gp-grid .gp-tile');
+ok(tiles.length === 15, 'guesspro grid has 15 tiles: ' + tiles.length);
+ok(GP.game.revealed === 1, 'stage 1 reveals exactly 1 tile: ' + GP.game.revealed);
+ok(doc.querySelectorAll('#gp-grid .gp-tile.revealed').length === 1, 'exactly 1 tile revealed in DOM');
+
+const tgt = GP.game.target;
+ok(!!tgt, 'guesspro has a target');
+// A wrong (but valid) guess consumes a chance
+const wrong = window.ARK_DATA.operators.find((o) => o.id !== tgt.id);
+doc.querySelector('#gp-input').value = wrong.name;
+doc.querySelector('#gp-submit').dispatchEvent(new window.Event('click', { bubbles: true }));
+ok(GP.game.guessesLeft === 2, 'wrong guess consumes a chance: ' + GP.game.guessesLeft);
+// An unknown name does NOT consume a chance
+doc.querySelector('#gp-input').value = '不存在的干员xyz';
+doc.querySelector('#gp-submit').dispatchEvent(new window.Event('click', { bubbles: true }));
+ok(GP.game.guessesLeft === 2, 'unknown name does not consume a chance');
+// Correct guess wins and reveals everything
+doc.querySelector('#gp-input').value = tgt.name;
+doc.querySelector('#gp-submit').dispatchEvent(new window.Event('click', { bubbles: true }));
+ok(GP.game.over === true, 'correct guess ends round');
+ok(GP.game.solved === 1, 'solved count increments');
+ok(doc.querySelectorAll('#gp-grid .gp-tile.revealed').length === 15, 'all tiles revealed on win');
+ok(!doc.querySelector('#gp-result').classList.contains('hidden'), 'result panel shown on win');
 
 console.log(fail ? `\nDOM smoke test: ${fail} failures` : '\nDOM smoke test: all checks passed');
 process.exit(fail ? 1 : 0);
