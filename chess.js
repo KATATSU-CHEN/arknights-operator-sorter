@@ -12,7 +12,7 @@
 
   const DIFFS = {
     easy: { name: '简单', depth: 0, topK: 0, avatar: 'assets/chess/easy.png?v=2', desc: '望 随手下，热身用' },
-    hard: { name: '困难', depth: 2, topK: 12, avatar: 'assets/chess/hard.png?v=2', desc: '会抢攻会封堵，得认真' },
+    hard: { name: '困难', depth: 2, topK: 12, avatar: 'assets/chess/hard.png?v=2', desc: '望 开始认真了' },
     wang: { name: '望哥', depth: 4, topK: 8, avatar: 'assets/chess/wang.png?v=2', desc: '望 全力以赴，小心被打穿' },
   };
 
