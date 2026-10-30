@@ -1,4 +1,4 @@
-/* Arknights Chess：和「望ai」对战五子棋（15×15，玩家执黑先手）。
+/* Arknights Chess：和「望」对战五子棋（15×15，玩家执黑先手）。
  * 三个难度：简单（随手）/ 困难（两层搜索）/ 望哥（四层 α-β 搜索）。
  * 独立模块，自带 AI，不依赖干员数据。
  */
@@ -6,14 +6,14 @@
   'use strict';
 
   const N = 15;           // 棋盘 15×15
-  const EMPTY = 0, YOU = 1, AI = 2; // 玩家执黑(1)先手，望ai 执白(2)
+  const EMPTY = 0, YOU = 1, AI = 2; // 玩家执黑(1)先手，望 执白(2)
   const WIN = 1e8;
   const DIRS = [[0, 1], [1, 0], [1, 1], [1, -1]];
 
   const DIFFS = {
-    easy: { name: '简单', depth: 0, topK: 0, avatar: 'assets/chess/easy.png?v=2', desc: '望ai 随手下，热身用' },
+    easy: { name: '简单', depth: 0, topK: 0, avatar: 'assets/chess/easy.png?v=2', desc: '望 随手下，热身用' },
     hard: { name: '困难', depth: 2, topK: 12, avatar: 'assets/chess/hard.png?v=2', desc: '会抢攻会封堵，得认真' },
-    wang: { name: '望哥', depth: 4, topK: 8, avatar: 'assets/chess/wang.png?v=2', desc: '望ai 全力以赴，小心被打穿' },
+    wang: { name: '望哥', depth: 4, topK: 8, avatar: 'assets/chess/wang.png?v=2', desc: '望 全力以赴，小心被打穿' },
   };
 
   const $ = (sel, root) => (root || document).querySelector(sel);
@@ -197,7 +197,7 @@
     viewEl.innerHTML =
       '<div id="chess-setup" class="quiz-setup">' +
         '<h2>⚫ Arknights Chess</h2>' +
-        '<p class="hint">和「望ai」对战五子棋，你执黑先手。先连成五子者获胜，选个难度开始吧！</p>' +
+        '<p class="hint">和「望」对战五子棋，你执黑先手。先连成五子者获胜，选个难度开始吧！</p>' +
         '<div class="quiz-field"><span class="quiz-label">难度</span>' +
           '<div class="chess-diffs" id="chess-diffs">' + diffBtns + '</div>' +
         '</div>' +
@@ -211,7 +211,7 @@
         '<div class="quiz-top">' +
           '<button class="btn ghost small" id="chess-quit">← 退出</button>' +
           '<span class="quiz-stat" id="chess-turn">轮到你落子</span>' +
-          '<span class="quiz-stat" id="chess-score">你 0 : 0 望ai</span>' +
+          '<span class="quiz-stat" id="chess-score">你 0 : 0 望</span>' +
         '</div>' +
         '<div class="chess-wrap">' +
           '<div class="chess-boardbox">' +
@@ -224,8 +224,8 @@
             '</div>' +
           '</div>' +
           '<aside class="chess-side">' +
-            '<img class="chess-avatar" id="chess-avatar" src="" alt="望ai">' +
-            '<div class="chess-ai-name" id="chess-ai-name">望ai</div>' +
+            '<img class="chess-avatar" id="chess-avatar" src="" alt="望">' +
+            '<div class="chess-ai-name" id="chess-ai-name">望</div>' +
             '<div class="chess-ai-say" id="chess-ai-say">请落子吧。</div>' +
             '<div class="chess-controls">' +
               '<button class="btn ghost small" id="chess-undo">↶ 悔棋</button>' +
@@ -285,7 +285,7 @@
   /* ======================= 游戏流程 ======================= */
   function startGame() {
     $('#chess-avatar', viewEl).src = DIFFS[cfg.diff].avatar;
-    $('#chess-ai-name', viewEl).textContent = '望ai · ' + DIFFS[cfg.diff].name;
+    $('#chess-ai-name', viewEl).textContent = '望 · ' + DIFFS[cfg.diff].name;
     $('#chess-setup', viewEl).classList.add('hidden');
     $('#chess-play', viewEl).classList.remove('hidden');
     resetBoard();
@@ -384,7 +384,7 @@
     game.over = true; game.thinking = false;
     let text;
     if (winner === YOU) { game.youWin++; text = '🎉 你赢了！'; say('可以啊，这局算你的。'); }
-    else if (winner === AI) { game.aiWin++; text = '💀 望ai 赢了'; say('五连，我赢了。'); }
+    else if (winner === AI) { game.aiWin++; text = '💀 望 赢了'; say('五连，我赢了。'); }
     else { text = '🤝 平局'; say('平手，再来一盘？'); }
     renderBoard();
     $('#chess-over-text', viewEl).textContent = text;
@@ -397,11 +397,11 @@
     const turnEl = $('#chess-turn', viewEl);
     if (turnEl) {
       turnEl.textContent = game.over ? '对局结束'
-        : game.thinking ? '望ai 思考中…'
-          : game.turn === YOU ? '轮到你落子（黑）' : '望ai 落子中';
+        : game.thinking ? '望 思考中…'
+          : game.turn === YOU ? '轮到你落子（黑）' : '望 落子中';
     }
     const sc = $('#chess-score', viewEl);
-    if (sc) sc.textContent = '你 ' + game.youWin + ' : ' + game.aiWin + ' 望ai';
+    if (sc) sc.textContent = '你 ' + game.youWin + ' : ' + game.aiWin + ' 望';
   }
 
   /* ======================= 入口 ======================= */
