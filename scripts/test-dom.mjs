@@ -31,6 +31,7 @@ run(read('sorter-core.js'));
 run(read('app.js'));
 run(read('quiz.js'));
 run(read('quiz-pro.js'));
+run(read('chess.js'));
 
 const doc = window.document;
 ok(window.ARK_DATA.operators.length > 0, 'data loaded');
@@ -184,6 +185,38 @@ ok(GP.game.over === true, 'give up ends the round');
 ok(GP.game.revealed === 20, 'give up reveals the full illustration');
 ok(doc.querySelector('#gp-name').classList.contains('show'), 'give up shows the answer name');
 ok(!doc.querySelector('#gp-result').classList.contains('hidden'), 'give up shows result panel');
+
+// ---------------- Arknights Chess（五子棋 AI） ----------------
+const CH = window.__chess;
+ok(CH && typeof CH.enterChess === 'function', 'chess module exposed');
+doc.querySelector('#nav-chess').dispatchEvent(new window.Event('click', { bubbles: true }));
+ok(!doc.querySelector('#view-chess').classList.contains('hidden'), 'chess view shown');
+ok(doc.querySelector('#nav-chess').classList.contains('active'), 'chess nav active');
+doc.querySelector('#chess-start').dispatchEvent(new window.Event('click', { bubbles: true }));
+ok(doc.querySelectorAll('#chess-board .chess-cell').length === 225, 'chess board has 225 cells');
+{
+  const In = CH._internals;
+  const fresh = () => { const b = In.newBoard(); CH.game.board = b; CH.game.over = false; CH.game.thinking = false; return b; };
+  // AI 必挡：玩家活四且 AI 无法自赢 -> 堵在连五点
+  CH.cfg.diff = 'hard';
+  let b = fresh();
+  for (let c = 3; c <= 6; c++) b[7][c] = In.YOU;
+  let mv = CH.aiMove();
+  b[mv[0]][mv[1]] = In.YOU;
+  ok(In.makesFive(b, mv[0], mv[1], In.YOU), 'chess AI blocks the opponent winning move');
+  // AI 必胜：自己有活四 -> 直接连五
+  b = fresh();
+  for (let c = 3; c <= 6; c++) b[7][c] = In.AI;
+  for (let c = 3; c <= 6; c++) b[9][c] = In.YOU;
+  mv = CH.aiMove();
+  b[mv[0]][mv[1]] = In.AI;
+  ok(In.makesFive(b, mv[0], mv[1], In.AI), 'chess AI takes its own winning move');
+  // 简单难度也会落在空位
+  CH.cfg.diff = 'easy';
+  b = fresh(); b[7][7] = In.YOU;
+  mv = CH.aiMove();
+  ok(mv && b[mv[0]][mv[1]] === 0, 'chess easy AI plays a valid empty cell');
+}
 
 // Guess Pro: no operator repeats within a run (until the pool is exhausted)
 GP.cfg.pool = 'r6';
