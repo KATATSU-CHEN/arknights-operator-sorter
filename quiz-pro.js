@@ -38,8 +38,8 @@
     if (o.en) nameIndex.set(norm(o.en), o);
   });
 
-  // 网格 3 列 × 5 行 = 15 块
-  const COLS = 3, ROWS = 5, TILES = COLS * ROWS;
+  // 网格 4 列 × 5 行 = 20 块
+  const COLS = 4, ROWS = 5, TILES = COLS * ROWS;
   const STAGES = [
     { add: 1, guesses: 3 },
     { add: 2, guesses: 3 },
@@ -106,7 +106,7 @@
         '<div class="quiz-top">' +
           '<button class="btn ghost small" id="gp-quit">← 退出</button>' +
           '<span class="quiz-stat" id="gp-stage">阶段 1/3</span>' +
-          '<span class="quiz-stat" id="gp-reveal">已露出 1/15</span>' +
+          '<span class="quiz-stat" id="gp-reveal">已露出 1/20</span>' +
           '<span class="quiz-stat" id="gp-score">猜对 0 · 连对 0</span>' +
         '</div>' +
         '<div class="gp-wrap"><div class="gp-frame">' +

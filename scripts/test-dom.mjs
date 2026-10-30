@@ -145,7 +145,7 @@ GP.cfg.pool = 'all';
 doc.querySelector('#gp-start').dispatchEvent(new window.Event('click', { bubbles: true }));
 ok(!doc.querySelector('#gp-play').classList.contains('hidden'), 'guesspro play view shown');
 const tiles = doc.querySelectorAll('#gp-grid .gp-tile');
-ok(tiles.length === 15, 'guesspro grid has 15 tiles: ' + tiles.length);
+ok(tiles.length === 20, 'guesspro grid has 20 tiles: ' + tiles.length);
 ok(GP.game.revealed === 1, 'stage 1 reveals exactly 1 tile: ' + GP.game.revealed);
 ok(doc.querySelectorAll('#gp-grid .gp-tile.revealed').length === 1, 'exactly 1 tile revealed in DOM');
 
@@ -165,7 +165,7 @@ doc.querySelector('#gp-input').value = tgt.name;
 doc.querySelector('#gp-submit').dispatchEvent(new window.Event('click', { bubbles: true }));
 ok(GP.game.over === true, 'correct guess ends round');
 ok(GP.game.solved === 1, 'solved count increments');
-ok(doc.querySelectorAll('#gp-grid .gp-tile.revealed').length === 15, 'all tiles revealed on win');
+ok(doc.querySelectorAll('#gp-grid .gp-tile.revealed').length === 20, 'all tiles revealed on win');
 ok(!doc.querySelector('#gp-result').classList.contains('hidden'), 'result panel shown on win');
 
 console.log(fail ? `\nDOM smoke test: ${fail} failures` : '\nDOM smoke test: all checks passed');
